@@ -256,3 +256,5 @@ agent_communication:
     message: "Starting comprehensive testing of InstaWix Feed Generator app. All components appear to be implemented. Will test UI functionality, interactions, and dialog behavior as requested."
   - agent: "testing"
     message: "✅ TESTING COMPLETE: All requested features tested successfully. Fixed App.js to load InstaWix components instead of basic template. Hero section, Feed Configurator, Feed Preview grid, Get Embed Code dialog, and Columns slider all working correctly. Screenshots captured showing proper functionality. No critical issues found."
+  - agent: "testing"
+    message: "✅ UPDATED FEATURES TESTING COMPLETE: Successfully tested all new InstaWix Feed Generator features. Fixed missing config properties in App.js (feedType, rows, refreshInterval). All 7 requested features working: 1) Feed Type tabs present, 2) Fixed Strip hides sliders & shows 5 items, 3) Custom Grid shows sliders, 4) Custom Grid 4x2 shows 8 items, 5) Auto-Update Interval dropdown with 4 options, 6) Embed code contains correct CSS media queries for both types, 7) Screenshots captured for both modes. No critical issues found."
