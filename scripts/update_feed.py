@@ -5,7 +5,7 @@ from datetime import datetime
 
 # Configurações
 TOKEN = os.environ.get("IG_TOKEN")
-ACCOUNT_ID = os.environ.get("IG_ACCOUNT_ID") # Novo segredo opcional
+ACCOUNT_ID = os.environ.get("IG_ACCOUNT_ID")
 
 if not TOKEN:
     print("AVISO: Token não encontrado.")
@@ -14,28 +14,33 @@ if not TOKEN:
 def get_instagram_posts():
     print("--- Iniciando Modo Direto (ID Específico) ---")
     
-    ig_user_id = ACCOUNT_ID
+    # Lógica Simplificada: Se tem ID, usa ele e ponto final.
+    if ACCOUNT_ID:
+        print(f"Usando ID configurado manualmente: {ACCOUNT_ID}")
+        return fetch_media(ACCOUNT_ID)
     
-    # Se não tiver ID no segredo, tenta descobrir (fallback)
-    if not ig_user_id:
-        print("AVISO: IG_ACCOUNT_ID não configurado. Tentando descoberta automática...")
-        # ... (código de descoberta anterior omitido para simplificar, focando no ID direto)
-        # Se chegou aqui sem ID, vamos tentar um último chute no /me
-        try:
-            me_resp = requests.get(f"https://graph.facebook.com/v18.0/me?fields=instagram_business_account&access_token={TOKEN}").json()
-            if "instagram_business_account" in me_resp:
-                ig_user_id = me_resp["instagram_business_account"]["id"]
-        except:
-            pass
+    # Se não tem ID, tenta descobrir (Lógica antiga de fallback)
+    print("AVISO: IG_ACCOUNT_ID não configurado. Tentando descoberta automática...")
+    try:
+        # Tenta descobrir via /me (Token de Página)
+        me_resp = requests.get(f"https://graph.facebook.com/v18.0/me?fields=instagram_business_account&access_token={TOKEN}").json()
+        if "instagram_business_account" in me_resp:
+            return fetch_media(me_resp["instagram_business_account"]["id"])
+            
+        # Tenta descobrir via /me/accounts (Token de Usuário)
+        accounts_resp = requests.get(f"https://graph.facebook.com/v18.0/me/accounts?fields=instagram_business_account&access_token={TOKEN}").json()
+        if "data" in accounts_resp:
+            for page in accounts_resp["data"]:
+                if "instagram_business_account" in page:
+                    return fetch_media(page["instagram_business_account"]["id"])
+    except Exception as e:
+        print(f"Erro na descoberta automática: {e}")
 
-    if not ig_user_id:
-        print("ERRO FATAL: Não foi possível obter o ID da conta. Configure o segredo IG_ACCOUNT_ID.")
-        return []
+    print("ERRO FATAL: Não foi possível obter o ID da conta. Configure o segredo IG_ACCOUNT_ID.")
+    return []
 
-    print(f"Usando ID de Conta: {ig_user_id}")
-
-    # Passo 2: Pegar as mídias usando o ID direto
-    # Adicionei 'limit=100' para garantir que pegamos posts suficientes
+def fetch_media(ig_user_id):
+    print(f"Buscando posts para o ID: {ig_user_id}...")
     media_url = f"https://graph.facebook.com/v18.0/{ig_user_id}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,username&access_token={TOKEN}&limit=20"
     
     try:
@@ -44,7 +49,6 @@ def get_instagram_posts():
         
         if "error" in data:
             print(f"ERRO ao buscar mídia: {data['error']['message']}")
-            # Se der erro de token aqui, é porque o token realmente não serve para esse ID
             return []
             
         posts = process_posts(data.get("data", []))
