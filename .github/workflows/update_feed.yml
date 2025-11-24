@@ -2,40 +2,63 @@ name: Update Instagram Feed
 
 on:
   schedule:
-    # Roda a cada 15 minutos (GitHub pode atrasar se for 5 min)
-    - cron: '*/15 * * * *'
-  workflow_dispatch: # Permite rodar manualmente clicando num botão
+    # Roda a cada 30 minutos
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Permite rodar manualmente
 
 permissions:
   contents: write
 
 jobs:
-  update-feed:
+  update-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
 
+      # 1. Configura Python e Baixa as Fotos
       - name: Configurar Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: Instalar dependências
-        run: |
-          pip install requests
+      - name: Instalar requests
+        run: pip install requests
 
-      - name: Rodar script de atualização
+      - name: Rodar script de atualização (Baixar Fotos)
         env:
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
-        run: |
-          python scripts/update_feed.py
+        run: python scripts/update_feed.py
 
-      - name: Commit e Push se houver mudanças
+      # 2. Salva o arquivo JSON no histórico (opcional, mas bom para backup)
+      - name: Commit do JSON atualizado
         run: |
-          git config --global user.name 'GitHub Action'
-          git config --global user.email 'action@github.com'
+          git config --global user.name 'InstaWix Bot'
+          git config --global user.email 'bot@instawix.app'
           git add frontend/public/posts.json
-          git commit -m "Auto-update: Instagram Feed" || echo "Sem mudanças para commitar"
+          # Só commita se tiver mudança
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update: Instagram Feed [skip ci]"
           git push
+
+      # 3. Configura Node.js para construir o site
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependências do Frontend
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Construir o Site (Build)
+        working-directory: ./frontend
+        run: npm run build
+
+      # 4. Publica no GitHub Pages
+      - name: Publicar no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/build
+          force_orphan: true # Mantém o histórico limpo
