@@ -1,0 +1,41 @@
+name: Update Instagram Feed
+
+on:
+  schedule:
+    # Roda a cada 15 minutos (GitHub pode atrasar se for 5 min)
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Permite rodar manualmente clicando num botão
+
+permissions:
+  contents: write
+
+jobs:
+  update-feed:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar dependências
+        run: |
+          pip install requests
+
+      - name: Rodar script de atualização
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+        run: |
+          python scripts/update_feed.py
+
+      - name: Commit e Push se houver mudanças
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add frontend/public/posts.json
+          git commit -m "Auto-update: Instagram Feed" || echo "Sem mudanças para commitar"
+          git push
