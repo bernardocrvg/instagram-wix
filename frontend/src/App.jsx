@@ -5,16 +5,20 @@ import FeedConfigurator from './components/FeedConfigurator';
 import FeedPreview from './components/FeedPreview';
 import CodeGenerator from './components/CodeGenerator';
 import { Button } from "@/components/ui/button";
-import { Code2, CheckCircle2, Zap, Layout } from 'lucide-react';
+import { Code2, CheckCircle2, Zap, Layout, RefreshCw } from 'lucide-react';
 import { Toaster } from "@/components/ui/sonner";
 
 export default function App() {
+  // Enhanced state to support two feed types
   const [config, setConfig] = useState({
     username: 'natgeo',
     hashtag: 'nature',
-    columns: 3,
+    feedType: 'fixed', // 'fixed' (5 posts) or 'custom' (NxM)
+    columns: 5,        // Used for custom, locked to 5 for fixed (desktop)
+    rows: 1,           // Used for custom
     gap: 12,
-    showCaptions: true
+    showCaptions: true,
+    refreshInterval: 300 // in seconds (5 minutes default)
   });
   
   const [isCodeOpen, setIsCodeOpen] = useState(false);
@@ -49,9 +53,9 @@ export default function App() {
                     <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-sm text-blue-900 dark:text-blue-100">Pro Tip</h4>
+                    <h4 className="font-semibold text-sm text-blue-900 dark:text-blue-100">Auto-Update Active</h4>
                     <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                      Use 3 columns for the best balance on desktop, and our script automatically adjusts to 1 column on mobile.
+                      Your feed is configured to check for new posts every {config.refreshInterval / 60} minutes automatically.
                     </p>
                   </div>
                 </div>
@@ -61,10 +65,16 @@ export default function App() {
               <div className="w-full lg:w-2/3">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold tracking-tight">Live Preview</h2>
-                  <Button onClick={() => setIsCodeOpen(true)} className="bg-gradient-primary shadow-lg shadow-primary/20">
-                    <Code2 className="w-4 h-4 mr-2" />
-                    Get Embed Code
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="hidden sm:flex">
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Refresh Preview
+                    </Button>
+                    <Button onClick={() => setIsCodeOpen(true)} className="bg-gradient-primary shadow-lg shadow-primary/20">
+                        <Code2 className="w-4 h-4 mr-2" />
+                        Get Embed Code
+                    </Button>
+                  </div>
                 </div>
                 
                 <FeedPreview config={config} />
@@ -85,18 +95,18 @@ export default function App() {
               {[
                 {
                   icon: <Layout className="w-6 h-6 text-primary" />,
-                  title: "Fully Responsive",
-                  desc: "Looks perfect on desktops, tablets, and mobile devices automatically."
+                  title: "Smart Layouts",
+                  desc: "Choose between a fixed 5-post strip or a fully custom grid up to 10x10."
                 },
                 {
-                  icon: <Zap className="w-6 h-6 text-primary" />,
-                  title: "Lightning Fast",
-                  desc: "Optimized loading ensures your website speed stays high."
+                  icon: <RefreshCw className="w-6 h-6 text-primary" />,
+                  title: "Auto-Updates",
+                  desc: "Feeds automatically refresh in the background to show your latest content."
                 },
                 {
                   icon: <CheckCircle2 className="w-6 h-6 text-primary" />,
-                  title: "No Coding Required",
-                  desc: "Just copy and paste the generated snippet into your Wix HTML block."
+                  title: "Mobile Optimized",
+                  desc: "Fixed feeds automatically stack on mobile for perfect readability."
                 }
               ].map((feature, i) => (
                 <div key={i} className="p-6 rounded-2xl bg-muted/30 border hover:border-primary/50 transition-colors">
