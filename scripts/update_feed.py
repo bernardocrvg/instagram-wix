@@ -7,57 +7,49 @@ from datetime import datetime
 TOKEN = os.environ.get("IG_TOKEN")
 
 if not TOKEN:
-    print("AVISO: Token não encontrado. O script não vai rodar corretamente.")
+    print("AVISO: Token não encontrado.")
     exit(0)
 
-def debug_token():
-    # Verifica se o token é válido e quais permissões tem
-    url = f"https://graph.facebook.com/v18.0/me?fields=id,name,permissions&access_token={TOKEN}"
-    resp = requests.get(url).json()
-    if "error" in resp:
-        print(f"DEBUG: Token inválido ou erro de conexão: {resp['error']['message']}")
-        return False
-    print(f"DEBUG: Token válido para usuário: {resp.get('name')} (ID: {resp.get('id')})")
-    return True
-
 def get_instagram_posts():
-    print("--- Iniciando Diagnóstico Graph API ---")
+    print("--- Iniciando Modo Direto (Page/IG Token) ---")
     
-    if not debug_token():
-        print("ERRO FATAL: O token fornecido não funciona. Verifique se copiou corretamente.")
-        return []
-
+    # Tenta descobrir o ID do Instagram Business associado a este token
+    # Se o token for de Página, usamos o endpoint /me?fields=instagram_business_account
+    # Se o token for de Instagram direto, o /me já pode ser o ID ou dar acesso
+    
     try:
-        # Passo 1: Listar páginas e ver vínculos
-        print("Buscando páginas vinculadas...")
-        user_url = f"https://graph.facebook.com/v18.0/me/accounts?fields=id,name,instagram_business_account&access_token={TOKEN}"
-        user_resp = requests.get(user_url).json()
+        # Tentativa 1: Token de Página -> Descobrir IG ID
+        print("Verificando identidade do token...")
+        me_url = f"https://graph.facebook.com/v18.0/me?fields=id,name,instagram_business_account&access_token={TOKEN}"
+        me_resp = requests.get(me_url).json()
         
-        if "error" in user_resp:
-            print(f"ERRO ao buscar páginas: {user_resp['error']['message']}")
-            return []
-            
         ig_user_id = None
         
-        if "data" in user_resp:
-            print(f"Encontradas {len(user_resp['data'])} páginas.")
-            for page in user_resp["data"]:
-                print(f"- Página: {page.get('name')} (ID: {page.get('id')})")
-                if "instagram_business_account" in page:
-                    ig_user_id = page["instagram_business_account"]["id"]
-                    print(f"  -> VINCULADA ao Instagram ID: {ig_user_id}")
-                    break
-                else:
-                    print("  -> SEM vínculo com Instagram Business.")
+        if "instagram_business_account" in me_resp:
+            ig_user_id = me_resp["instagram_business_account"]["id"]
+            print(f"Token de Página detectado. ID Instagram vinculado: {ig_user_id}")
+        elif "id" in me_resp:
+            # Talvez seja um token direto de usuário ou a página não tem vínculo no campo padrão
+            # Vamos tentar listar as contas conectadas se for um token de usuário que falhou antes
+            # Mas como você disse que me/accounts tá vazio, vamos tentar assumir que o ID do /me É o ID da página
+            page_id = me_resp["id"]
+            print(f"ID identificado: {page_id}. Tentando buscar IG vinculado a este ID...")
+            
+            # Tenta buscar o IG ID explicitamente usando o ID da página
+            page_ig_url = f"https://graph.facebook.com/v18.0/{page_id}?fields=instagram_business_account&access_token={TOKEN}"
+            page_ig_resp = requests.get(page_ig_url).json()
+            
+            if "instagram_business_account" in page_ig_resp:
+                ig_user_id = page_ig_resp["instagram_business_account"]["id"]
+                print(f"Sucesso! ID Instagram encontrado: {ig_user_id}")
         
         if not ig_user_id:
-            print("ERRO: Nenhuma conta de Instagram Business encontrada nas páginas desse usuário.")
-            print("DICA: Verifique se sua conta do Instagram é 'Comercial' ou 'Criador' e se está vinculada a uma Página do Facebook.")
+            print("ERRO: Não foi possível encontrar um ID de Instagram Business vinculado a este token.")
+            print("Resposta da API:", me_resp)
             return []
 
-        print(f"--- Buscando Mídias para ID: {ig_user_id} ---")
-
         # Passo 2: Pegar as mídias
+        print(f"Buscando posts para o ID: {ig_user_id}...")
         media_url = f"https://graph.facebook.com/v18.0/{ig_user_id}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,username&access_token={TOKEN}&limit=20"
         
         response = requests.get(media_url)
@@ -108,4 +100,4 @@ if __name__ == "__main__":
     if posts:
         save_posts(posts)
     else:
-        print("Nenhum post foi salvo devido aos erros acima.")
+        print("Nenhum post foi salvo.")
