@@ -14,20 +14,16 @@ if not TOKEN:
 def get_instagram_posts():
     print("--- Iniciando Modo Direto (ID Específico) ---")
     
-    # Lógica Simplificada: Se tem ID, usa ele e ponto final.
     if ACCOUNT_ID:
         print(f"Usando ID configurado manualmente: {ACCOUNT_ID}")
         return fetch_media(ACCOUNT_ID)
     
-    # Se não tem ID, tenta descobrir (Lógica antiga de fallback)
     print("AVISO: IG_ACCOUNT_ID não configurado. Tentando descoberta automática...")
     try:
-        # Tenta descobrir via /me (Token de Página)
         me_resp = requests.get(f"https://graph.facebook.com/v18.0/me?fields=instagram_business_account&access_token={TOKEN}").json()
         if "instagram_business_account" in me_resp:
             return fetch_media(me_resp["instagram_business_account"]["id"])
             
-        # Tenta descobrir via /me/accounts (Token de Usuário)
         accounts_resp = requests.get(f"https://graph.facebook.com/v18.0/me/accounts?fields=instagram_business_account&access_token={TOKEN}").json()
         if "data" in accounts_resp:
             for page in accounts_resp["data"]:
@@ -41,7 +37,8 @@ def get_instagram_posts():
 
 def fetch_media(ig_user_id):
     print(f"Buscando posts para o ID: {ig_user_id}...")
-    media_url = f"https://graph.facebook.com/v18.0/{ig_user_id}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,username&access_token={TOKEN}&limit=20"
+    # AUMENTADO PARA 100 POSTS para suportar paginação
+    media_url = f"https://graph.facebook.com/v18.0/{ig_user_id}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,username&access_token={TOKEN}&limit=100"
     
     try:
         response = requests.get(media_url)

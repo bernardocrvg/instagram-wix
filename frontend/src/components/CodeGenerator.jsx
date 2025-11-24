@@ -11,57 +11,79 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   const generateCode = () => {
     const totalPosts = config.feedType === 'fixed' ? 5 : (config.columns * config.rows);
     
-    // CSS for Fixed Layout (Responsive)
-    const fixedCss = `
+    // CSS Base
+    const baseCss = `
   #instawix-feed { 
     display: grid; 
     width: 100%; 
     gap: ${config.gap}px;
   }
-  /* Desktop: 5 columns */
+  .instawix-post { 
+    width: 100%; 
+    aspect-ratio: ${config.aspectRatio.replace('/', '/')}; 
+    object-fit: cover; 
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+  .instawix-post img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+  .instawix-post:hover img {
+    transform: scale(1.05);
+  }
+`;
+
+    // CSS Específico por Tipo
+    let layoutCss = '';
+    
+    if (config.feedType === 'fixed') {
+        layoutCss = `
+  /* Desktop: 5 colunas */
   @media (min-width: 768px) {
     #instawix-feed { grid-template-columns: repeat(5, 1fr); }
   }
-  /* Mobile: 1 column (stacked) */
+  /* Mobile: 1 coluna */
   @media (max-width: 767px) {
     #instawix-feed { grid-template-columns: 1fr; }
   }
 `;
-
-    // CSS for Custom Layout (Grid)
-    const customCss = `
+    } else {
+        layoutCss = `
   #instawix-feed { 
-    display: grid; 
-    width: 100%; 
-    gap: ${config.gap}px;
     grid-template-columns: repeat(${config.columns}, 1fr);
   }
-  /* Mobile adjustment for custom grid if needed */
+  /* Mobile: Ajuste para 2 colunas se for grade muito densa */
   @media (max-width: 600px) {
-    #instawix-feed { grid-template-columns: repeat(2, 1fr); } /* Fallback to 2 cols on mobile for dense grids */
+    #instawix-feed { grid-template-columns: repeat(2, 1fr); } 
   }
 `;
+    }
 
-    return `<!-- InstaWix Feed Widget (${config.feedType === 'fixed' ? 'Fixed Strip' : 'Custom Grid'}) -->
+    return `<!-- InstaWix Feed (${config.feedType === 'fixed' ? 'Faixa Fixa' : 'Grade'}) -->
 <div 
   id="instawix-feed" 
   data-user="${config.username}" 
   data-tag="${config.hashtag}" 
-  data-limit="${totalPosts}"
-  data-refresh="${config.refreshInterval}"
+  data-limit="${config.feedType === 'paginated' ? 100 : totalPosts}"
+  data-type="${config.feedType}"
+  data-per-page="${config.itemsPerPage || 12}"
 ></div>
 <script src="https://cdn.instawix.app/widget.js" async></script>
 <style>
-  ${config.feedType === 'fixed' ? fixedCss : customCss}
-  .instawix-post { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+  ${baseCss}
+  ${layoutCss}
 </style>
-<!-- End Widget -->`;
+<!-- Fim do Widget -->`;
   };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(generateCode());
     setCopied(true);
-    toast.success("Code copied to clipboard!");
+    toast.success("Código copiado!");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -71,14 +93,10 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Code className="w-5 h-5 text-primary" />
-            Get Embed Code
+            Copiar Código de Incorporação
           </DialogTitle>
           <DialogDescription>
-            Copy this code and paste it into an HTML/Embed block on your Wix site.
-            <br/>
-            <span className="text-xs text-primary mt-1 inline-block">
-              * Includes auto-update every {config.refreshInterval / 60} mins.
-            </span>
+            Copie este código e cole em um bloco HTML/Embed no seu site Wix.
           </DialogDescription>
         </DialogHeader>
         
@@ -100,7 +118,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
 
         <DialogFooter className="sm:justify-start">
           <div className="text-xs text-muted-foreground">
-            Need help? <a href="#" className="text-primary hover:underline">Read our Wix integration guide</a>.
+            Precisa de ajuda? <a href="#" className="text-primary hover:underline">Leia o guia de integração</a>.
           </div>
         </DialogFooter>
       </DialogContent>

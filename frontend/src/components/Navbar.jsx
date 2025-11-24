@@ -15,14 +15,14 @@ export default function Navbar() {
         
         <div className="flex items-center gap-4">
           <a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden md:block">
-            How it works
+            Como funciona
           </a>
           <a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden md:block">
-            Features
+            Recursos
           </a>
           <Button variant="outline" size="sm" className="gap-2">
             <Github size={16} />
-            <span>Star on GitHub</span>
+            <span>Ver no GitHub</span>
           </Button>
         </div>
       </div>

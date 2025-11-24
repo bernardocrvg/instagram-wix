@@ -5,17 +5,19 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search } from 'lucide-react';
+import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search, BookOpen } from 'lucide-react';
 
 export default function FeedConfigurator({ config, setConfig, onGenerate, isLoading }) {
   
   const handleTypeChange = (value) => {
     if (value === 'fixed') {
       setConfig({ ...config, feedType: 'fixed', columns: 5, rows: 1 });
-    } else {
+    } else if (value === 'custom') {
       setConfig({ ...config, feedType: 'custom', columns: 3, rows: 2 });
+    } else {
+      setConfig({ ...config, feedType: 'paginated', columns: 3, rows: 3, itemsPerPage: 9 });
     }
   };
 
@@ -30,26 +32,26 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings2 className="w-5 h-5 text-primary" />
-          Configuration
+          Configuração
         </CardTitle>
         <CardDescription>
-          Customize your feed layout and behavior.
+          Personalize o layout e comportamento do feed.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         
-        {/* Source Settings */}
+        {/* Fonte */}
         <div className="space-y-4">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Source</h3>
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Fonte</h3>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Usuário</Label>
                 <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">@</span>
                 <Input 
                     id="username" 
-                    placeholder="username" 
+                    placeholder="usuario" 
                     className="pl-7 h-9"
                     value={config.username}
                     onChange={(e) => setConfig({...config, username: e.target.value})}
@@ -59,12 +61,12 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="hashtag">Hashtag</Label>
+                <Label htmlFor="hashtag">Hashtag {config.feedType === 'paginated' && <span className="text-red-500">*</span>}</Label>
                 <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">#</span>
                 <Input 
                     id="hashtag" 
-                    placeholder="travel" 
+                    placeholder="viagem" 
                     className="pl-7 h-9"
                     value={config.hashtag}
                     onChange={(e) => setConfig({...config, hashtag: e.target.value})}
@@ -85,33 +87,35 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
             ) : (
                 <Search className="w-4 h-4 mr-2" />
             )}
-            {isLoading ? 'Updating...' : 'Update Preview'}
+            {isLoading ? 'Atualizando...' : 'Atualizar Preview'}
           </Button>
         </div>
 
         <div className="h-px bg-border" />
 
-        {/* Feed Type Selection */}
+        {/* Tipo de Feed */}
         <div className="space-y-4">
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Feed Type</h3>
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tipo de Feed</h3>
             <Tabs value={config.feedType} onValueChange={handleTypeChange} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="fixed" className="flex items-center gap-2">
-                        <StretchHorizontal className="w-4 h-4" />
-                        Fixed Strip
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="fixed" className="flex items-center gap-2 text-xs">
+                        <StretchHorizontal className="w-3 h-3" />
+                        Faixa
                     </TabsTrigger>
-                    <TabsTrigger value="custom" className="flex items-center gap-2">
-                        <LayoutGrid className="w-4 h-4" />
-                        Custom Grid
+                    <TabsTrigger value="custom" className="flex items-center gap-2 text-xs">
+                        <LayoutGrid className="w-3 h-3" />
+                        Grade
+                    </TabsTrigger>
+                    <TabsTrigger value="paginated" className="flex items-center gap-2 text-xs">
+                        <BookOpen className="w-3 h-3" />
+                        Páginas
                     </TabsTrigger>
                 </TabsList>
                 
                 <div className="mt-4 p-3 bg-muted/50 rounded-md text-xs text-muted-foreground border">
-                    {config.feedType === 'fixed' ? (
-                        <p>Shows exactly <strong>5 posts</strong>. Displays as 1 row on desktop and 5 rows on mobile automatically.</p>
-                    ) : (
-                        <p>Fully customizable grid. Define up to 10 rows and 10 columns to fit any space.</p>
-                    )}
+                    {config.feedType === 'fixed' && <p>Mostra exatamente <strong>5 posts</strong>. 1 linha no PC, 5 linhas no celular.</p>}
+                    {config.feedType === 'custom' && <p>Grade fixa. Você define quantas linhas e colunas quer mostrar.</p>}
+                    {config.feedType === 'paginated' && <p>Mostra todos os posts com a hashtag escolhida, divididos em várias páginas.</p>}
                 </div>
             </Tabs>
         </div>
@@ -119,17 +123,36 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
         {/* Layout Settings */}
         <div className="space-y-6">
           
-          {config.feedType === 'custom' && (
+          {/* Proporção da Imagem */}
+          <div className="space-y-2">
+            <Label>Proporção da Imagem</Label>
+            <Select 
+                value={config.aspectRatio} 
+                onValueChange={(val) => setConfig({...config, aspectRatio: val})}
+            >
+                <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="1/1">1:1 (Quadrado)</SelectItem>
+                    <SelectItem value="3/4">3:4 (Retrato)</SelectItem>
+                    <SelectItem value="4/5">4:5 (Instagram)</SelectItem>
+                    <SelectItem value="9/16">9:16 (Stories)</SelectItem>
+                </SelectContent>
+            </Select>
+          </div>
+
+          {(config.feedType === 'custom' || config.feedType === 'paginated') && (
             <>
                 <div className="space-y-4">
                     <div className="flex justify-between">
-                    <Label>Columns (Desktop)</Label>
+                    <Label>Colunas (PC)</Label>
                     <span className="text-sm text-muted-foreground">{config.columns}</span>
                     </div>
                     <Slider 
                     value={[config.columns]} 
                     min={1} 
-                    max={10} 
+                    max={6} 
                     step={1} 
                     onValueChange={(val) => setConfig({...config, columns: val[0]})}
                     />
@@ -137,15 +160,23 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
 
                 <div className="space-y-4">
                     <div className="flex justify-between">
-                    <Label>Rows</Label>
-                    <span className="text-sm text-muted-foreground">{config.rows}</span>
+                    <Label>{config.feedType === 'paginated' ? 'Posts por Página' : 'Linhas'}</Label>
+                    <span className="text-sm text-muted-foreground">
+                        {config.feedType === 'paginated' ? config.itemsPerPage : config.rows}
+                    </span>
                     </div>
                     <Slider 
-                    value={[config.rows]} 
+                    value={[config.feedType === 'paginated' ? config.itemsPerPage : config.rows]} 
                     min={1} 
-                    max={10} 
+                    max={20} 
                     step={1} 
-                    onValueChange={(val) => setConfig({...config, rows: val[0]})}
+                    onValueChange={(val) => {
+                        if (config.feedType === 'paginated') {
+                            setConfig({...config, itemsPerPage: val[0]});
+                        } else {
+                            setConfig({...config, rows: val[0]});
+                        }
+                    }}
                     />
                 </div>
             </>
@@ -153,7 +184,7 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
 
           <div className="space-y-4">
             <div className="flex justify-between">
-              <Label>Gap (px)</Label>
+              <Label>Espaçamento (px)</Label>
               <span className="text-sm text-muted-foreground">{config.gap}px</span>
             </div>
             <Slider 
@@ -165,26 +196,8 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Auto-Update Interval</Label>
-            <Select 
-                value={config.refreshInterval.toString()} 
-                onValueChange={(val) => setConfig({...config, refreshInterval: parseInt(val)})}
-            >
-                <SelectTrigger>
-                    <SelectValue placeholder="Select interval" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="60">Every 1 minute</SelectItem>
-                    <SelectItem value="300">Every 5 minutes</SelectItem>
-                    <SelectItem value="900">Every 15 minutes</SelectItem>
-                    <SelectItem value="3600">Every 1 hour</SelectItem>
-                </SelectContent>
-            </Select>
-          </div>
-
           <div className="flex items-center justify-between pt-2">
-            <Label htmlFor="show-captions" className="cursor-pointer">Show Captions</Label>
+            <Label htmlFor="show-captions" className="cursor-pointer">Mostrar Legendas</Label>
             <Switch 
               id="show-captions" 
               checked={config.showCaptions}
