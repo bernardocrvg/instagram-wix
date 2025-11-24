@@ -8,8 +8,18 @@ import { toast } from "sonner";
 export default function CodeGenerator({ open, onOpenChange, config }) {
   const [copied, setCopied] = React.useState(false);
 
+  // Detecta a URL base atual para gerar o link correto do script
+  const getScriptUrl = () => {
+    // Em desenvolvimento local, usa placeholder. Em produção, usa a URL real.
+    const origin = window.location.origin + window.location.pathname;
+    // Remove 'index.html' ou barra final se houver
+    const baseUrl = origin.replace(/\/index\.html$/, '').replace(/\/$/, '');
+    return `${baseUrl}/widget.js`;
+  };
+
   const generateCode = () => {
     const totalPosts = config.feedType === 'fixed' ? 5 : (config.columns * config.rows);
+    const scriptUrl = getScriptUrl();
     
     // CSS Base
     const baseCss = `
@@ -17,6 +27,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     display: grid; 
     width: 100%; 
     gap: ${config.gap}px;
+    box-sizing: border-box;
   }
   .instawix-post { 
     width: 100%; 
@@ -25,12 +36,14 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     display: block;
     position: relative;
     overflow: hidden;
+    border-radius: 4px; /* Opcional: borda arredondada */
   }
   .instawix-post img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s;
+    display: block;
   }
   .instawix-post:hover img {
     transform: scale(1.05);
@@ -63,7 +76,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
 `;
     }
 
-    return `<!-- InstaWix Feed (${config.feedType === 'fixed' ? 'Faixa Fixa' : 'Grade'}) -->
+    return `<!-- InstaWix Feed -->
 <div 
   id="instawix-feed" 
   data-user="${config.username}" 
@@ -71,8 +84,9 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   data-limit="${config.feedType === 'paginated' ? 100 : totalPosts}"
   data-type="${config.feedType}"
   data-per-page="${config.itemsPerPage || 12}"
+  data-gap="${config.gap}"
 ></div>
-<script src="https://cdn.instawix.app/widget.js" async></script>
+<script src="${scriptUrl}" async></script>
 <style>
   ${baseCss}
   ${layoutCss}
@@ -118,7 +132,8 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
 
         <DialogFooter className="sm:justify-start">
           <div className="text-xs text-muted-foreground">
-            Precisa de ajuda? <a href="#" className="text-primary hover:underline">Leia o guia de integração</a>.
+            O script será carregado de: <br/>
+            <code className="bg-muted px-1 py-0.5 rounded">{getScriptUrl()}</code>
           </div>
         </DialogFooter>
       </DialogContent>
