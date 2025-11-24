@@ -246,7 +246,13 @@ metadata:
   test_sequence: 1
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Update Preview Button Functionality"
+    - "Loading State Display"
+    - "Skeleton Loaders in Feed Preview"
+    - "Enter Key Trigger Functionality"
+    - "Refresh Preview Button in Header"
+    - "Feed Shuffle/Refresh Mechanism"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
