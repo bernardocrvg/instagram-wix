@@ -4,9 +4,9 @@ import Hero from './components/Hero';
 import FeedConfigurator from './components/FeedConfigurator';
 import FeedPreview from './components/FeedPreview';
 import CodeGenerator from './components/CodeGenerator';
-import { Button } from "@/components/ui/button";
+import { Button } from "./components/ui/button";
 import { Code2, CheckCircle2, Zap, Layout, RefreshCw } from 'lucide-react';
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
   // Enhanced state to support two feed types
