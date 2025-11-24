@@ -13,8 +13,11 @@ export default function App() {
     username: 'natgeo',
     hashtag: 'nature',
     columns: 3,
+    rows: 2,
     gap: 12,
-    showCaptions: true
+    showCaptions: true,
+    feedType: 'custom',
+    refreshInterval: 300
   });
   
   const [isCodeOpen, setIsCodeOpen] = useState(false);
