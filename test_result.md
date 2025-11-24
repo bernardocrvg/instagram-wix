@@ -251,6 +251,78 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Update Preview Button Functionality"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: Update Preview button exists but doesn't work. App.js has empty onGenerate function `onGenerate={() => {}}` on line 47. Button click has no effect - no loading state, no skeleton loaders, no feed refresh. Components have correct structure but not wired up properly."
+
+  - task: "Loading State Display"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/FeedConfigurator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: Loading state components exist (spinner, 'Updating...' text) but never triggered. FeedConfigurator has isLoading prop support but App.js doesn't pass isLoading state. Need to implement loading state management in App.js."
+
+  - task: "Skeleton Loaders in Feed Preview"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/FeedPreview.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: Skeleton loader components exist in FeedPreview.jsx but never shown. Component has isLoading prop support but App.js doesn't pass isLoading state. Skeleton rendering logic is correct (lines 47-54)."
+
+  - task: "Enter Key Trigger Functionality"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/FeedConfigurator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: Enter key handlers exist in both Username and Hashtag inputs (handleKeyDown function lines 22-26) but don't trigger updates because onGenerate function is empty in App.js. Handlers call onGenerate() correctly."
+
+  - task: "Refresh Preview Button in Header"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/components/Navbar.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ MISSING: 'Refresh Preview' button not found in header/navbar. Only 'Star on GitHub' button exists in header. Need to add Refresh Preview button to Navbar.jsx or Live Preview header section."
+
+  - task: "Feed Shuffle/Refresh Mechanism"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/FeedPreview.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: Feed shuffle logic exists (refreshTrigger prop, useMemo with Math.random) but refreshTrigger is never passed from App.js. Component ready for refresh functionality but not connected to trigger mechanism."
+
 agent_communication:
   - agent: "testing"
     message: "Starting comprehensive testing of InstaWix Feed Generator app. All components appear to be implemented. Will test UI functionality, interactions, and dialog behavior as requested."
@@ -258,3 +330,5 @@ agent_communication:
     message: "✅ TESTING COMPLETE: All requested features tested successfully. Fixed App.js to load InstaWix components instead of basic template. Hero section, Feed Configurator, Feed Preview grid, Get Embed Code dialog, and Columns slider all working correctly. Screenshots captured showing proper functionality. No critical issues found."
   - agent: "testing"
     message: "✅ UPDATED FEATURES TESTING COMPLETE: Successfully tested all new InstaWix Feed Generator features. Fixed missing config properties in App.js (feedType, rows, refreshInterval). All 7 requested features working: 1) Feed Type tabs present, 2) Fixed Strip hides sliders & shows 5 items, 3) Custom Grid shows sliders, 4) Custom Grid 4x2 shows 8 items, 5) Auto-Update Interval dropdown with 4 options, 6) Embed code contains correct CSS media queries for both types, 7) Screenshots captured for both modes. No critical issues found."
+  - agent: "testing"
+    message: "❌ UPDATE PREVIEW FUNCTIONALITY TESTING FAILED: Tested 7 specific requirements for Update Preview feature. CRITICAL ISSUES: 1) Update Preview button exists but doesn't work (empty onGenerate function), 2) No loading states triggered (button or skeleton loaders), 3) Enter key handlers don't work (same root cause), 4) Refresh Preview button missing from header, 5) Feed shuffle mechanism not connected. Components have correct structure but App.js needs major updates to wire everything together with proper state management."
