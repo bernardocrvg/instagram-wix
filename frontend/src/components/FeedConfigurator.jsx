@@ -7,15 +7,21 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal } from 'lucide-react';
+import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search } from 'lucide-react';
 
-export default function FeedConfigurator({ config, setConfig, onGenerate }) {
+export default function FeedConfigurator({ config, setConfig, onGenerate, isLoading }) {
   
   const handleTypeChange = (value) => {
     if (value === 'fixed') {
       setConfig({ ...config, feedType: 'fixed', columns: 5, rows: 1 });
     } else {
       setConfig({ ...config, feedType: 'custom', columns: 3, rows: 2 });
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      onGenerate();
     }
   };
 
@@ -47,6 +53,7 @@ export default function FeedConfigurator({ config, setConfig, onGenerate }) {
                     className="pl-7 h-9"
                     value={config.username}
                     onChange={(e) => setConfig({...config, username: e.target.value})}
+                    onKeyDown={handleKeyDown}
                 />
                 </div>
             </div>
@@ -61,10 +68,25 @@ export default function FeedConfigurator({ config, setConfig, onGenerate }) {
                     className="pl-7 h-9"
                     value={config.hashtag}
                     onChange={(e) => setConfig({...config, hashtag: e.target.value})}
+                    onKeyDown={handleKeyDown}
                 />
                 </div>
             </div>
           </div>
+          
+          <Button 
+            className="w-full bg-secondary/10 text-secondary-foreground hover:bg-secondary/20 border-0" 
+            variant="outline"
+            onClick={onGenerate}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+                <Search className="w-4 h-4 mr-2" />
+            )}
+            {isLoading ? 'Updating...' : 'Update Preview'}
+          </Button>
         </div>
 
         <div className="h-px bg-border" />

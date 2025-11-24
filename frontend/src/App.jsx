@@ -22,10 +22,23 @@ export default function App() {
   });
   
   const [isCodeOpen, setIsCodeOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
   const configSectionRef = useRef(null);
 
   const scrollToConfig = () => {
     configSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Simulate fetching new data when "Update" is clicked
+  const handleUpdatePreview = () => {
+    setIsLoading(true);
+    // Simulate network delay
+    setTimeout(() => {
+      setRefreshTrigger(prev => prev + 1);
+      setIsLoading(false);
+    }, 1000);
   };
 
   return (
@@ -45,7 +58,8 @@ export default function App() {
                 <FeedConfigurator 
                   config={config} 
                   setConfig={setConfig} 
-                  onGenerate={() => {}} 
+                  onGenerate={handleUpdatePreview}
+                  isLoading={isLoading}
                 />
                 
                 <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 rounded-lg flex gap-3">
@@ -66,8 +80,14 @@ export default function App() {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold tracking-tight">Live Preview</h2>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="hidden sm:flex">
-                        <RefreshCw className="w-4 h-4 mr-2" />
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="hidden sm:flex"
+                        onClick={handleUpdatePreview}
+                        disabled={isLoading}
+                    >
+                        <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                         Refresh Preview
                     </Button>
                     <Button onClick={() => setIsCodeOpen(true)} className="bg-gradient-primary shadow-lg shadow-primary/20">
@@ -77,7 +97,11 @@ export default function App() {
                   </div>
                 </div>
                 
-                <FeedPreview config={config} />
+                <FeedPreview 
+                    config={config} 
+                    isLoading={isLoading} 
+                    refreshTrigger={refreshTrigger}
+                />
               </div>
             </div>
           </div>
@@ -105,8 +129,8 @@ export default function App() {
                 },
                 {
                   icon: <CheckCircle2 className="w-6 h-6 text-primary" />,
-                  title: "Mobile Optimized",
-                  desc: "Fixed feeds automatically stack on mobile for perfect readability."
+                  title: "GitHub Pages Ready",
+                  desc: "This generator runs entirely in the browser. Host it anywhere, including GitHub Pages."
                 }
               ].map((feature, i) => (
                 <div key={i} className="p-6 rounded-2xl bg-muted/30 border hover:border-primary/50 transition-colors">
