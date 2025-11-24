@@ -8,11 +8,8 @@ import { toast } from "sonner";
 export default function CodeGenerator({ open, onOpenChange, config }) {
   const [copied, setCopied] = React.useState(false);
 
-  // Detecta a URL base atual para gerar o link correto do script
   const getScriptUrl = () => {
-    // Em desenvolvimento local, usa placeholder. Em produção, usa a URL real.
     const origin = window.location.origin + window.location.pathname;
-    // Remove 'index.html' ou barra final se houver
     const baseUrl = origin.replace(/\/index\.html$/, '').replace(/\/$/, '');
     return `${baseUrl}/widget.js`;
   };
@@ -21,7 +18,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     const totalPosts = config.feedType === 'fixed' ? 5 : (config.columns * config.rows);
     const scriptUrl = getScriptUrl();
     
-    // CSS Base
+    // CSS Base com suporte a Legendas
     const baseCss = `
   #instawix-feed { 
     display: grid; 
@@ -36,7 +33,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     display: block;
     position: relative;
     overflow: hidden;
-    border-radius: 4px; /* Opcional: borda arredondada */
+    border-radius: 4px;
   }
   .instawix-post img {
     width: 100%;
@@ -48,18 +45,42 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   .instawix-post:hover img {
     transform: scale(1.05);
   }
+  /* Estilos da Legenda (Overlay) */
+  .instawix-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .instawix-post:hover .instawix-overlay {
+    opacity: 1;
+  }
+  .instawix-caption {
+    color: white;
+    font-family: sans-serif;
+    font-size: 12px;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+    line-height: 1.4;
+  }
 `;
 
-    // CSS Específico por Tipo
     let layoutCss = '';
     
     if (config.feedType === 'fixed') {
         layoutCss = `
-  /* Desktop: 5 colunas */
   @media (min-width: 768px) {
     #instawix-feed { grid-template-columns: repeat(5, 1fr); }
   }
-  /* Mobile: 1 coluna */
   @media (max-width: 767px) {
     #instawix-feed { grid-template-columns: 1fr; }
   }
@@ -69,7 +90,6 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   #instawix-feed { 
     grid-template-columns: repeat(${config.columns}, 1fr);
   }
-  /* Mobile: Ajuste para 2 colunas se for grade muito densa */
   @media (max-width: 600px) {
     #instawix-feed { grid-template-columns: repeat(2, 1fr); } 
   }

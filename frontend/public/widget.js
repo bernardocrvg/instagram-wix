@@ -1,10 +1,8 @@
 (function() {
-  // Função principal de inicialização
   function initInstaWix() {
     const container = document.getElementById('instawix-feed');
     if (!container) return;
 
-    // Configurações lidas dos atributos data-
     const config = {
       username: container.getAttribute('data-user'),
       hashtag: container.getAttribute('data-tag'),
@@ -14,13 +12,10 @@
       gap: parseInt(container.getAttribute('data-gap')) || 10
     };
 
-    // URL base para buscar o JSON (detecta automaticamente onde o script está hospedado)
-    // Se o script for carregado de https://user.github.io/repo/widget.js, o JSON estará em https://user.github.io/repo/posts.json
     const scriptTag = document.currentScript || document.querySelector('script[src*="widget.js"]');
     const baseUrl = scriptTag ? scriptTag.src.substring(0, scriptTag.src.lastIndexOf('/')) : '.';
     const jsonUrl = `${baseUrl}/posts.json?t=${new Date().getTime()}`;
 
-    // Busca os dados
     fetch(jsonUrl)
       .then(response => response.json())
       .then(posts => {
@@ -33,18 +28,16 @@
   }
 
   function renderFeed(container, allPosts, config) {
-    // Filtra por hashtag se necessário
     let posts = allPosts;
     if (config.hashtag) {
       const tag = config.hashtag.replace('#', '').toLowerCase();
       posts = allPosts.filter(p => p.caption && p.caption.toLowerCase().includes(tag));
     }
 
-    // Estado interno para paginação
     let currentPage = 1;
     
     function renderPage(page) {
-      container.innerHTML = ''; // Limpa container
+      container.innerHTML = ''; 
       
       let displayPosts = [];
       let totalPages = 1;
@@ -65,7 +58,6 @@
         return;
       }
 
-      // Cria o Grid
       displayPosts.forEach(post => {
         const link = document.createElement('a');
         link.href = post.permalink;
@@ -76,13 +68,26 @@
         const img = document.createElement('img');
         img.src = post.media_url;
         img.alt = post.caption || 'Instagram Post';
-        img.loading = 'lazy'; // Performance
+        img.loading = 'lazy';
         
         link.appendChild(img);
+
+        // Adiciona a Legenda (Overlay)
+        if (post.caption) {
+            const overlay = document.createElement('div');
+            overlay.className = 'instawix-overlay';
+            
+            const caption = document.createElement('p');
+            caption.className = 'instawix-caption';
+            caption.innerText = post.caption;
+            
+            overlay.appendChild(caption);
+            link.appendChild(overlay);
+        }
+
         container.appendChild(link);
       });
 
-      // Adiciona controles de paginação se necessário
       if (config.type === 'paginated' && totalPages > 1) {
         const nav = document.createElement('div');
         nav.className = 'instawix-nav';
@@ -120,11 +125,9 @@
       return btn;
     }
 
-    // Renderiza primeira página
     renderPage(1);
   }
 
-  // Inicializa quando o DOM estiver pronto
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initInstaWix);
   } else {
