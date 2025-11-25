@@ -42,20 +42,23 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
         }
     }
 
-    // Lógica de Alinhamento
-    let containerAlign = '';
-    if (config.alignment === 'center') containerAlign = 'margin: 0 auto;';
-    if (config.alignment === 'end') containerAlign = 'margin-left: auto;';
-    if (config.alignment === 'start') containerAlign = 'margin-right: auto;';
+    // Lógica de Alinhamento (CORRIGIDA)
+    // Usamos um wrapper flex para alinhar o grid
+    let wrapperStyle = `display: flex; width: 100%; justify-content: ${config.alignment};`;
+    
+    // O grid em si deve ter largura ajustável se estiver centralizado
+    let gridWidth = config.alignment === 'center' ? 'width: fit-content; max-width: 100%;' : 'width: 100%;';
 
     // CSS Base
     const baseCss = `
+  #instawix-wrapper {
+    ${wrapperStyle}
+  }
   #instawix-feed { 
     display: grid; 
-    width: 100%; 
     gap: ${config.gap}px;
     box-sizing: border-box;
-    ${containerAlign}
+    ${gridWidth}
   }
   .instawix-post { 
     width: 100%; 
@@ -65,6 +68,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     position: relative;
     overflow: hidden;
     border-radius: ${config.borderRadius}px;
+    min-width: 50px; /* Evita colapso */
   }
   .instawix-post img {
     width: 100%;
@@ -147,15 +151,17 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
 
     return `<!-- InstaWix Feed -->
 ${fontImport}
-<div 
-  id="instawix-feed" 
-  data-user="${config.username}" 
-  data-tag="${config.hashtag}" 
-  data-limit="${config.feedType === 'paginated' ? 100 : totalPosts}"
-  data-type="${config.feedType}"
-  data-per-page="${config.itemsPerPage || 12}"
-  data-gap="${config.gap}"
-></div>
+<div id="instawix-wrapper">
+  <div 
+    id="instawix-feed" 
+    data-user="${config.username}" 
+    data-tag="${config.hashtag}" 
+    data-limit="${config.feedType === 'paginated' ? 100 : totalPosts}"
+    data-type="${config.feedType}"
+    data-per-page="${config.itemsPerPage || 12}"
+    data-gap="${config.gap}"
+  ></div>
+</div>
 <script src="${scriptUrl}" async></script>
 <style>
   ${baseCss}

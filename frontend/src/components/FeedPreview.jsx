@@ -47,16 +47,22 @@ export default function FeedPreview({ config, isLoading, posts }) {
   }
 
   // Estilo do container para alinhamento
-  const containerStyle = {
+  // CORREÇÃO: Usando margin auto para centralizar o bloco inteiro
+  const wrapperStyle = {
+    display: 'flex',
+    justifyContent: config.alignment, // 'start', 'center', 'end'
+    width: '100%'
+  };
+
+  const gridStyle = {
     display: 'grid',
-    width: '100%',
     gap: `${config.gap}px`,
     gridTemplateColumns: config.feedType === 'fixed' 
         ? `repeat(5, 1fr)` 
         : `repeat(${config.columns}, 1fr)`,
-    // Alinhamento (simulado no grid)
-    justifyContent: config.alignment,
-    maxWidth: config.alignment === 'center' ? '100%' : 'auto'
+    // Se não for 100% de largura, o alinhamento funciona melhor
+    width: config.alignment === 'center' ? 'fit-content' : '100%',
+    maxWidth: '100%'
   };
 
   return (
@@ -84,60 +90,64 @@ export default function FeedPreview({ config, isLoading, posts }) {
             </div>
         ) : (
             <div className="flex-1 w-full">
-                <div style={containerStyle}>
-                {isLoading ? (
-                    Array(config.feedType === 'fixed' ? 5 : (config.columns * (config.rows || 2))).fill(null).map((_, i) => (
-                        <Skeleton 
-                            key={`skeleton-${i}`} 
-                            className="w-full" 
-                            style={{ 
-                                aspectRatio: config.aspectRatio,
-                                borderRadius: `${config.borderRadius}px`
-                            }}
-                        />
-                    ))
-                ) : (
-                    displayPosts.map((post, idx) => (
-                        <a 
-                            key={`${post.id}-${idx}`} 
-                            href={post.permalink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group relative bg-muted overflow-hidden cursor-pointer animate-in fade-in zoom-in duration-500 block"
-                            style={{ 
-                                animationDelay: `${idx * 50}ms`,
-                                aspectRatio: config.aspectRatio,
-                                borderRadius: `${config.borderRadius}px`
-                            }}
-                        >
-                        <img 
-                            src={post.imageUrl} 
-                            alt={post.caption} 
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                        
-                        <div 
-                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4"
-                            style={{
-                                backgroundColor: hexToRgba(config.overlayColor, config.overlayOpacity)
-                            }}
-                        >
-                            {config.showCaptions && (
-                            <p 
-                                className="text-xs text-center line-clamp-3 mt-2 font-medium"
-                                style={{
-                                    fontFamily: config.fontFamily === 'custom' ? 'inherit' : config.fontFamily,
-                                    fontWeight: config.fontWeight,
-                                    color: config.captionColor
+                <div style={wrapperStyle}>
+                    <div style={gridStyle}>
+                    {isLoading ? (
+                        Array(config.feedType === 'fixed' ? 5 : (config.columns * (config.rows || 2))).fill(null).map((_, i) => (
+                            <Skeleton 
+                                key={`skeleton-${i}`} 
+                                className="w-full" 
+                                style={{ 
+                                    aspectRatio: config.aspectRatio,
+                                    borderRadius: `${config.borderRadius}px`,
+                                    minWidth: '50px' // Evita colapso
+                                }}
+                            />
+                        ))
+                    ) : (
+                        displayPosts.map((post, idx) => (
+                            <a 
+                                key={`${post.id}-${idx}`} 
+                                href={post.permalink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group relative bg-muted overflow-hidden cursor-pointer animate-in fade-in zoom-in duration-500 block"
+                                style={{ 
+                                    animationDelay: `${idx * 50}ms`,
+                                    aspectRatio: config.aspectRatio,
+                                    borderRadius: `${config.borderRadius}px`,
+                                    minWidth: '50px'
                                 }}
                             >
-                                {post.caption}
-                            </p>
-                            )}
-                        </div>
-                        </a>
-                    ))
-                )}
+                            <img 
+                                src={post.imageUrl} 
+                                alt={post.caption} 
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            />
+                            
+                            <div 
+                                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4"
+                                style={{
+                                    backgroundColor: hexToRgba(config.overlayColor, config.overlayOpacity)
+                                }}
+                            >
+                                {config.showCaptions && (
+                                <p 
+                                    className="text-xs text-center line-clamp-3 mt-2 font-medium"
+                                    style={{
+                                        fontFamily: config.fontFamily === 'custom' ? 'inherit' : config.fontFamily,
+                                        fontWeight: config.fontWeight,
+                                        color: config.captionColor
+                                    }}
+                                >
+                                    {post.caption}
+                                </p>
+                                )}
+                            </div>
+                            </a>
+                        ))
+                    )}
+                    </div>
                 </div>
             </div>
         )}

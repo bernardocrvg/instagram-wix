@@ -263,7 +263,9 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                         <SelectItem value="300">Leve (300)</SelectItem>
                         <SelectItem value="400">Normal (400)</SelectItem>
                         <SelectItem value="500">Médio (500)</SelectItem>
+                        <SelectItem value="600">Semi-Negrito (600)</SelectItem>
                         <SelectItem value="700">Negrito (700)</SelectItem>
+                        <SelectItem value="800">Extra-Negrito (800)</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
