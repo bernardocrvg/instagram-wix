@@ -46,24 +46,77 @@ export default function FeedPreview({ config, isLoading, posts }) {
     displayPosts = posts.slice(start, start + limit);
   }
 
-  // Estilo do container para alinhamento
-  // CORREÇÃO: Usando margin auto para centralizar o bloco inteiro
-  const wrapperStyle = {
-    display: 'flex',
-    justifyContent: config.alignment, // 'start', 'center', 'end'
-    width: '100%'
-  };
-
+  // Lógica de Grid e Alinhamento
+  const numColumns = config.feedType === 'fixed' ? 5 : config.columns;
+  
+  // O container do grid ocupa 100% da largura
+  // O justify-content alinha os itens dentro dele se sobrarem espaços
   const gridStyle = {
     display: 'grid',
+    width: '100%',
     gap: `${config.gap}px`,
-    gridTemplateColumns: config.feedType === 'fixed' 
-        ? `repeat(5, 1fr)` 
-        : `repeat(${config.columns}, 1fr)`,
-    // Se não for 100% de largura, o alinhamento funciona melhor
-    width: config.alignment === 'center' ? 'fit-content' : '100%',
-    maxWidth: '100%'
+    // Define colunas fixas baseadas na porcentagem total dividida pelo número de colunas
+    // Isso garante que cada item tenha o tamanho "certo" de 1/N do container
+    gridTemplateColumns: `repeat(${numColumns}, 1fr)`, 
+    
+    // Se tiver menos itens que colunas, o grid normal esticaria ou deixaria buraco.
+    // Para alinhar, precisamos que o grid não ocupe 100% se tiver poucos itens?
+    // NÃO. O grid deve ocupar 100%.
+    // Se quisermos alinhar os itens SOBRANTES (ex: 3 itens num grid de 5),
+    // Grid padrão alinha à esquerda (start).
+    
+    // TRUQUE: Se quisermos centralizar um grid que tem menos itens que colunas,
+    // precisamos restringir a largura do container do grid.
   };
+
+  // Wrapper para alinhar o grid em si quando ele for menor que a tela
+  const wrapperStyle = {
+    display: 'flex',
+    width: '100%',
+    justifyContent: config.alignment, // start, center, end
+  };
+
+  // Se o número de posts for menor que o número de colunas,
+  // o grid deve encolher para respeitar o alinhamento.
+  // Caso contrário, ele ocupa 100%.
+  const actualColumns = Math.min(displayPosts.length || numColumns, numColumns);
+  
+  // Estilo final do Grid
+  const finalGridStyle = {
+    ...gridStyle,
+    // Se tivermos menos posts que colunas, forçamos o grid a ter apenas essas colunas
+    // para que ele não ocupe 100% e possa ser alinhado pelo wrapper
+    gridTemplateColumns: `repeat(${actualColumns}, 1fr)`,
+    // Largura máxima baseada na proporção (opcional, mas ajuda no visual)
+    maxWidth: displayPosts.length < numColumns ? `${(displayPosts.length / numColumns) * 100}%` : '100%',
+    // Se for 100%, o maxWidth não atrapalha. Se for menos, ele encolhe e o wrapper alinha.
+    // Mas espere! Se usarmos 1fr, ele vai tentar ocupar o espaço disponível.
+    // A melhor abordagem para alinhamento de "poucos itens" é usar flex no wrapper e largura fixa/max-content no grid.
+    
+    // CORREÇÃO DEFINITIVA:
+    // Vamos manter o grid com o número de colunas CONFIGURADO.
+    // Mas se tivermos menos itens, eles vão ficar à esquerda (padrão do grid).
+    // O usuário quer que o BLOCO de itens fique centralizado.
+    // Então se são 5 colunas e tem 3 itens, os 3 itens devem ficar no meio?
+    // OU o grid deve ter 3 colunas?
+    
+    // Interpretação: "Caso tenha menos de 5, é necessário respeitar o alinhamento escolhido."
+    // Isso significa que se eu escolhi CENTRO e tenho 3 itens (num grid de 5),
+    // os 3 itens devem ficar centralizados na tela.
+    
+    // Para isso funcionar, o grid precisa ter `grid-template-columns: repeat(3, 1fr)` (dinâmico)
+    // E o wrapper alinha esse grid menor.
+    gridTemplateColumns: `repeat(${actualColumns}, 1fr)`,
+    width: displayPosts.length < numColumns ? 'auto' : '100%',
+    // Adicionamos min-width para garantir que não fique minúsculo
+    minWidth: displayPosts.length < numColumns ? 'fit-content' : '100%'
+  };
+
+  // Se estiver carregando, usamos o número total de colunas para o esqueleto
+  if (isLoading) {
+      finalGridStyle.gridTemplateColumns = `repeat(${numColumns}, 1fr)`;
+      finalGridStyle.width = '100%';
+  }
 
   return (
     <div className="w-full h-full min-h-[500px] bg-white rounded-xl border shadow-sm overflow-hidden flex flex-col">
@@ -91,7 +144,7 @@ export default function FeedPreview({ config, isLoading, posts }) {
         ) : (
             <div className="flex-1 w-full">
                 <div style={wrapperStyle}>
-                    <div style={gridStyle}>
+                    <div style={finalGridStyle}>
                     {isLoading ? (
                         Array(config.feedType === 'fixed' ? 5 : (config.columns * (config.rows || 2))).fill(null).map((_, i) => (
                             <Skeleton 
@@ -100,7 +153,7 @@ export default function FeedPreview({ config, isLoading, posts }) {
                                 style={{ 
                                     aspectRatio: config.aspectRatio,
                                     borderRadius: `${config.borderRadius}px`,
-                                    minWidth: '50px' // Evita colapso
+                                    minWidth: '50px'
                                 }}
                             />
                         ))

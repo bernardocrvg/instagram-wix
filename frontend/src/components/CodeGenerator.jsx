@@ -43,12 +43,8 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     }
 
     // Lógica de Alinhamento (CORRIGIDA)
-    // Usamos um wrapper flex para alinhar o grid
     let wrapperStyle = `display: flex; width: 100%; justify-content: ${config.alignment};`;
     
-    // O grid em si deve ter largura ajustável se estiver centralizado
-    let gridWidth = config.alignment === 'center' ? 'width: fit-content; max-width: 100%;' : 'width: 100%;';
-
     // CSS Base
     const baseCss = `
   #instawix-wrapper {
@@ -58,7 +54,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     display: grid; 
     gap: ${config.gap}px;
     box-sizing: border-box;
-    ${gridWidth}
+    width: 100%; /* Padrão */
   }
   .instawix-post { 
     width: 100%; 
@@ -68,7 +64,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     position: relative;
     overflow: hidden;
     border-radius: ${config.borderRadius}px;
-    min-width: 50px; /* Evita colapso */
+    min-width: 50px;
   }
   .instawix-post img {
     width: 100%;
@@ -112,7 +108,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   }
 `;
 
-    // CSS Específico por Tipo (Com Responsividade Inteligente)
+    // CSS Específico por Tipo (Com Responsividade Inteligente e Alinhamento)
     let layoutCss = '';
     
     if (config.feedType === 'fixed') {
@@ -149,6 +145,32 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
 `;
     }
 
+    // Script de Ajuste Dinâmico para Alinhamento
+    // Esse script roda no cliente para ajustar o grid se tiver poucos itens
+    const alignmentScript = `
+    <script>
+    (function() {
+        function adjustAlignment() {
+            const feed = document.getElementById('instawix-feed');
+            if (!feed) return;
+            const items = feed.children.length;
+            const cols = ${config.feedType === 'fixed' ? 5 : config.columns};
+            
+            if (items > 0 && items < cols) {
+                feed.style.gridTemplateColumns = 'repeat(' + items + ', 1fr)';
+                feed.style.width = 'fit-content';
+            } else {
+                feed.style.width = '100%';
+                // Reseta para o CSS original (media queries)
+                feed.style.removeProperty('grid-template-columns');
+            }
+        }
+        // Roda a cada 500ms para garantir que pegou os posts carregados
+        setInterval(adjustAlignment, 500);
+    })();
+    </script>
+    `;
+
     return `<!-- InstaWix Feed -->
 ${fontImport}
 <div id="instawix-wrapper">
@@ -163,6 +185,7 @@ ${fontImport}
   ></div>
 </div>
 <script src="${scriptUrl}" async></script>
+${alignmentScript}
 <style>
   ${baseCss}
   ${layoutCss}
