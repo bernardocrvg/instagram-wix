@@ -21,14 +21,22 @@ export default function FeedPreview({ config, isLoading, posts }) {
 
   // Carrega a fonte do Google dinamicamente para o preview
   useEffect(() => {
-    if (config.fontFamily && config.fontFamily !== 'custom') {
+    const fontsToLoad = new Set();
+    if (config.fontFamily && config.fontFamily !== 'custom') fontsToLoad.add(config.fontFamily);
+    if (config.btnFontFamily && config.btnFontFamily !== 'custom') fontsToLoad.add(config.btnFontFamily);
+    if (config.infoFontFamily && config.infoFontFamily !== 'custom') fontsToLoad.add(config.infoFontFamily);
+
+    const links = [];
+    fontsToLoad.forEach(font => {
         const link = document.createElement('link');
-        link.href = `https://fonts.googleapis.com/css2?family=${config.fontFamily.replace(/ /g, '+')}:wght@${config.fontWeight}&display=swap`;
+        link.href = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
         link.rel = 'stylesheet';
         document.head.appendChild(link);
-        return () => document.head.removeChild(link);
-    }
-  }, [config.fontFamily, config.fontWeight]);
+        links.push(link);
+    });
+
+    return () => links.forEach(link => document.head.removeChild(link));
+  }, [config.fontFamily, config.btnFontFamily, config.infoFontFamily]);
 
   // Calculate limits
   let displayPosts = [];
@@ -46,77 +54,41 @@ export default function FeedPreview({ config, isLoading, posts }) {
     displayPosts = posts.slice(start, start + limit);
   }
 
-  // Lógica de Grid e Alinhamento
-  const numColumns = config.feedType === 'fixed' ? 5 : config.columns;
-  
-  // O container do grid ocupa 100% da largura
-  // O justify-content alinha os itens dentro dele se sobrarem espaços
-  const gridStyle = {
-    display: 'grid',
-    width: '100%',
-    gap: `${config.gap}px`,
-    // Define colunas fixas baseadas na porcentagem total dividida pelo número de colunas
-    // Isso garante que cada item tenha o tamanho "certo" de 1/N do container
-    gridTemplateColumns: `repeat(${numColumns}, 1fr)`, 
-    
-    // Se tiver menos itens que colunas, o grid normal esticaria ou deixaria buraco.
-    // Para alinhar, precisamos que o grid não ocupe 100% se tiver poucos itens?
-    // NÃO. O grid deve ocupar 100%.
-    // Se quisermos alinhar os itens SOBRANTES (ex: 3 itens num grid de 5),
-    // Grid padrão alinha à esquerda (start).
-    
-    // TRUQUE: Se quisermos centralizar um grid que tem menos itens que colunas,
-    // precisamos restringir a largura do container do grid.
-  };
-
-  // Wrapper para alinhar o grid em si quando ele for menor que a tela
+  // Estilo do container para alinhamento
   const wrapperStyle = {
     display: 'flex',
-    width: '100%',
-    justifyContent: config.alignment, // start, center, end
+    justifyContent: config.alignment, // 'start', 'center', 'end'
+    width: '100%'
   };
 
-  // Se o número de posts for menor que o número de colunas,
-  // o grid deve encolher para respeitar o alinhamento.
-  // Caso contrário, ele ocupa 100%.
-  const actualColumns = Math.min(displayPosts.length || numColumns, numColumns);
-  
-  // Estilo final do Grid
-  const finalGridStyle = {
-    ...gridStyle,
-    // Se tivermos menos posts que colunas, forçamos o grid a ter apenas essas colunas
-    // para que ele não ocupe 100% e possa ser alinhado pelo wrapper
-    gridTemplateColumns: `repeat(${actualColumns}, 1fr)`,
-    // Largura máxima baseada na proporção (opcional, mas ajuda no visual)
-    maxWidth: displayPosts.length < numColumns ? `${(displayPosts.length / numColumns) * 100}%` : '100%',
-    // Se for 100%, o maxWidth não atrapalha. Se for menos, ele encolhe e o wrapper alinha.
-    // Mas espere! Se usarmos 1fr, ele vai tentar ocupar o espaço disponível.
-    // A melhor abordagem para alinhamento de "poucos itens" é usar flex no wrapper e largura fixa/max-content no grid.
-    
-    // CORREÇÃO DEFINITIVA:
-    // Vamos manter o grid com o número de colunas CONFIGURADO.
-    // Mas se tivermos menos itens, eles vão ficar à esquerda (padrão do grid).
-    // O usuário quer que o BLOCO de itens fique centralizado.
-    // Então se são 5 colunas e tem 3 itens, os 3 itens devem ficar no meio?
-    // OU o grid deve ter 3 colunas?
-    
-    // Interpretação: "Caso tenha menos de 5, é necessário respeitar o alinhamento escolhido."
-    // Isso significa que se eu escolhi CENTRO e tenho 3 itens (num grid de 5),
-    // os 3 itens devem ficar centralizados na tela.
-    
-    // Para isso funcionar, o grid precisa ter `grid-template-columns: repeat(3, 1fr)` (dinâmico)
-    // E o wrapper alinha esse grid menor.
-    gridTemplateColumns: `repeat(${actualColumns}, 1fr)`,
-    width: displayPosts.length < numColumns ? 'auto' : '100%',
-    // Adicionamos min-width para garantir que não fique minúsculo
-    minWidth: displayPosts.length < numColumns ? 'fit-content' : '100%'
+  const gridStyle = {
+    display: 'grid',
+    gap: `${config.gap}px`,
+    gridTemplateColumns: config.feedType === 'fixed' 
+        ? `repeat(5, 1fr)` 
+        : `repeat(${config.columns}, 1fr)`,
+    width: config.alignment === 'center' ? 'fit-content' : '100%',
+    maxWidth: '100%'
   };
 
-  // Se estiver carregando, usamos o número total de colunas para o esqueleto
-  if (isLoading) {
-      finalGridStyle.gridTemplateColumns = `repeat(${numColumns}, 1fr)`;
-      finalGridStyle.width = '100%';
-  }
+  // Estilos de Paginação
+  const btnStyle = {
+    color: config.btnTextColor,
+    backgroundColor: config.btnBgColor,
+    fontFamily: config.btnFontFamily,
+    borderRadius: `${config.btnRadius}px`,
+    border: '1px solid rgba(0,0,0,0.1)',
+    padding: '8px 16px',
+    fontSize: '14px',
+    cursor: 'pointer',
+    transition: 'opacity 0.2s'
+  };
+
+  const infoStyle = {
+    color: config.infoTextColor,
+    fontFamily: config.infoFontFamily,
+    fontSize: '14px'
+  };
 
   return (
     <div className="w-full h-full min-h-[500px] bg-white rounded-xl border shadow-sm overflow-hidden flex flex-col">
@@ -144,7 +116,7 @@ export default function FeedPreview({ config, isLoading, posts }) {
         ) : (
             <div className="flex-1 w-full">
                 <div style={wrapperStyle}>
-                    <div style={finalGridStyle}>
+                    <div style={gridStyle}>
                     {isLoading ? (
                         Array(config.feedType === 'fixed' ? 5 : (config.columns * (config.rows || 2))).fill(null).map((_, i) => (
                             <Skeleton 
@@ -208,25 +180,23 @@ export default function FeedPreview({ config, isLoading, posts }) {
         {/* Paginação */}
         {config.feedType === 'paginated' && totalPages > 1 && !isLoading && (
             <div className="mt-6 flex items-center justify-center gap-4 pt-4 border-t">
-                <Button 
-                    variant="outline" 
-                    size="sm"
+                <button 
+                    style={{...btnStyle, opacity: currentPage === 1 ? 0.5 : 1}}
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                 >
-                    <ChevronLeft className="w-4 h-4 mr-1" /> Anterior
-                </Button>
-                <span className="text-sm text-muted-foreground">
+                    &lt; Anterior
+                </button>
+                <span style={infoStyle}>
                     Página {currentPage} de {totalPages}
                 </span>
-                <Button 
-                    variant="outline" 
-                    size="sm"
+                <button 
+                    style={{...btnStyle, opacity: currentPage === totalPages ? 0.5 : 1}}
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                 >
-                    Próximo <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
+                    Próximo &gt;
+                </button>
             </div>
         )}
       </div>

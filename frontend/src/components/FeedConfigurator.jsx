@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search, BookOpen, AlignLeft, AlignCenter, AlignRight, Type, Palette, Download } from 'lucide-react';
+import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search, BookOpen, AlignLeft, AlignCenter, AlignRight, Type, Palette, Download, MousePointerClick } from 'lucide-react';
 
 const GOOGLE_FONTS = [
   "Inter", "Montserrat", "Roboto", "Open Sans", "Lato", "Poppins", 
@@ -130,6 +130,78 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                 </div>
             </Tabs>
         </div>
+
+        {/* Configurações de Paginação (Condicional) */}
+        {config.feedType === 'paginated' && (
+            <div className="space-y-6 p-4 bg-muted/30 rounded-lg border border-border/50">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                    <MousePointerClick className="w-4 h-4" /> Estilo da Paginação
+                </h3>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label>Cor do Texto (Botão)</Label>
+                        <div className="flex gap-2 items-center">
+                            <div className="relative w-8 h-8 shrink-0">
+                                <Input type="color" value={config.btnTextColor} onChange={(e) => setConfig({...config, btnTextColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
+                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnTextColor }} />
+                            </div>
+                            <Input value={config.btnTextColor} onChange={(e) => setConfig({...config, btnTextColor: e.target.value})} className="font-mono text-xs h-8 uppercase" maxLength={7} />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Cor do Fundo (Botão)</Label>
+                        <div className="flex gap-2 items-center">
+                            <div className="relative w-8 h-8 shrink-0">
+                                <Input type="color" value={config.btnBgColor} onChange={(e) => setConfig({...config, btnBgColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
+                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnBgColor }} />
+                            </div>
+                            <Input value={config.btnBgColor} onChange={(e) => setConfig({...config, btnBgColor: e.target.value})} className="font-mono text-xs h-8 uppercase" maxLength={7} />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label>Fonte do Botão</Label>
+                        <Select value={config.btnFontFamily} onValueChange={(val) => setConfig({...config, btnFontFamily: val})}>
+                            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {GOOGLE_FONTS.map(font => (<SelectItem key={font} value={font}>{font}</SelectItem>))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Fonte do Info</Label>
+                        <Select value={config.infoFontFamily} onValueChange={(val) => setConfig({...config, infoFontFamily: val})}>
+                            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {GOOGLE_FONTS.map(font => (<SelectItem key={font} value={font}>{font}</SelectItem>))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <Label>Cor do Texto Info</Label>
+                    <div className="flex gap-2 items-center">
+                        <div className="relative w-8 h-8 shrink-0">
+                            <Input type="color" value={config.infoTextColor} onChange={(e) => setConfig({...config, infoTextColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
+                            <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.infoTextColor }} />
+                        </div>
+                        <Input value={config.infoTextColor} onChange={(e) => setConfig({...config, infoTextColor: e.target.value})} className="font-mono text-xs h-8 uppercase" maxLength={7} />
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <div className="flex justify-between">
+                        <Label>Arredondamento Botão</Label>
+                        <span className="text-xs text-muted-foreground">{config.btnRadius}px</span>
+                    </div>
+                    <Slider value={[config.btnRadius]} min={0} max={30} step={1} onValueChange={(val) => setConfig({...config, btnRadius: val[0]})} />
+                </div>
+            </div>
+        )}
 
         {/* Cores e Efeitos */}
         <div className="space-y-6">

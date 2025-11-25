@@ -26,10 +26,16 @@ export default function App() {
     fontFamily: 'Inter',
     fontWeight: '400',
     customFontUrl: '',
-    // Novas configurações de cor
     captionColor: '#ffffff',
     overlayColor: '#000000',
-    overlayOpacity: 50
+    overlayOpacity: 50,
+    // Novas configurações de Paginação
+    btnTextColor: '#333333',
+    btnBgColor: '#ffffff',
+    btnFontFamily: 'Inter',
+    btnRadius: 4,
+    infoTextColor: '#666666',
+    infoFontFamily: 'Inter'
   });
   
   const [isCodeOpen, setIsCodeOpen] = useState(false);

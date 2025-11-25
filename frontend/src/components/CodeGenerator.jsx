@@ -26,25 +26,26 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     const totalPosts = config.feedType === 'fixed' ? 5 : (config.columns * config.rows);
     const scriptUrl = getScriptUrl();
     
-    // Gera o link da fonte do Google se necessário
-    let fontImport = '';
-    let fontFamily = 'sans-serif';
-    
-    if (config.fontFamily && config.fontFamily !== 'custom') {
-        fontFamily = `'${config.fontFamily}', sans-serif`;
-        fontImport = `<link href="https://fonts.googleapis.com/css2?family=${config.fontFamily.replace(/ /g, '+')}:wght@${config.fontWeight}&display=swap" rel="stylesheet">`;
-    } else if (config.fontFamily === 'custom' && config.customFontUrl) {
-        if (config.customFontUrl.includes('.')) {
-            fontImport = `<style>@font-face { font-family: 'CustomFont'; src: url('${config.customFontUrl}'); }</style>`;
-            fontFamily = "'CustomFont', sans-serif";
-        } else {
-            fontFamily = `'${config.customFontUrl}', sans-serif`;
-        }
+    // Gera imports de fontes (Deduplicado)
+    const fontsToLoad = new Set();
+    if (config.fontFamily && config.fontFamily !== 'custom') fontsToLoad.add(config.fontFamily);
+    if (config.btnFontFamily && config.btnFontFamily !== 'custom') fontsToLoad.add(config.btnFontFamily);
+    if (config.infoFontFamily && config.infoFontFamily !== 'custom') fontsToLoad.add(config.infoFontFamily);
+
+    let fontImports = '';
+    fontsToLoad.forEach(font => {
+        fontImports += `<link href="https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">\n`;
+    });
+
+    // Fonte Customizada
+    if (config.fontFamily === 'custom' && config.customFontUrl && config.customFontUrl.includes('.')) {
+        fontImports += `<style>@font-face { font-family: 'CustomFont'; src: url('${config.customFontUrl}'); }</style>\n`;
     }
 
-    // Lógica de Alinhamento (CORRIGIDA)
+    // Lógica de Alinhamento
     let wrapperStyle = `display: flex; width: 100%; justify-content: ${config.alignment};`;
-    
+    let gridWidth = config.alignment === 'center' ? 'width: fit-content; max-width: 100%;' : 'width: 100%;';
+
     // CSS Base
     const baseCss = `
   #instawix-wrapper {
@@ -54,7 +55,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     display: grid; 
     gap: ${config.gap}px;
     box-sizing: border-box;
-    width: 100%; /* Padrão */
+    ${gridWidth}
   }
   .instawix-post { 
     width: 100%; 
@@ -95,7 +96,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   }
   .instawix-caption {
     color: ${config.captionColor};
-    font-family: ${fontFamily};
+    font-family: ${config.fontFamily === 'custom' ? "'CustomFont', sans-serif" : `'${config.fontFamily}', sans-serif`};
     font-weight: ${config.fontWeight};
     font-size: 12px;
     text-align: center;
@@ -106,37 +107,60 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     margin: 0;
     line-height: 1.4;
   }
+  /* Estilos de Paginação */
+  .instawix-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+  .instawix-nav button {
+    color: ${config.btnTextColor};
+    background-color: ${config.btnBgColor};
+    font-family: ${config.btnFontFamily === 'custom' ? 'sans-serif' : `'${config.btnFontFamily}', sans-serif`};
+    border-radius: ${config.btnRadius}px;
+    border: 1px solid rgba(0,0,0,0.1);
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .instawix-nav button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .instawix-nav span {
+    color: ${config.infoTextColor};
+    font-family: ${config.infoFontFamily === 'custom' ? 'sans-serif' : `'${config.infoFontFamily}', sans-serif`};
+    font-size: 14px;
+    align-self: center;
+  }
 `;
 
-    // CSS Específico por Tipo (Com Responsividade Inteligente e Alinhamento)
+    // CSS Específico por Tipo
     let layoutCss = '';
     
     if (config.feedType === 'fixed') {
         layoutCss = `
-  /* Desktop: 5 colunas */
   @media (min-width: 768px) {
     #instawix-feed { grid-template-columns: repeat(5, 1fr); }
   }
-  /* Mobile: 1 coluna */
   @media (max-width: 767px) {
     #instawix-feed { grid-template-columns: 1fr; }
   }
 `;
     } else {
         layoutCss = `
-  /* Desktop (Padrão escolhido) */
   #instawix-feed { 
     grid-template-columns: repeat(${config.columns}, 1fr);
   }
-  
-  /* Tablet (Máximo 3 colunas) */
   @media (max-width: 768px) {
     #instawix-feed { 
       grid-template-columns: repeat(${Math.min(config.columns, 3)}, 1fr); 
     } 
   }
-
-  /* Mobile (Máximo 2 colunas) */
   @media (max-width: 480px) {
     #instawix-feed { 
       grid-template-columns: repeat(${Math.min(config.columns, 2)}, 1fr); 
@@ -146,14 +170,13 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     }
 
     // Script de Ajuste Dinâmico para Alinhamento
-    // Esse script roda no cliente para ajustar o grid se tiver poucos itens
     const alignmentScript = `
     <script>
     (function() {
         function adjustAlignment() {
             const feed = document.getElementById('instawix-feed');
             if (!feed) return;
-            const items = feed.children.length;
+            const items = feed.querySelectorAll('.instawix-post').length;
             const cols = ${config.feedType === 'fixed' ? 5 : config.columns};
             
             if (items > 0 && items < cols) {
@@ -161,18 +184,16 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
                 feed.style.width = 'fit-content';
             } else {
                 feed.style.width = '100%';
-                // Reseta para o CSS original (media queries)
                 feed.style.removeProperty('grid-template-columns');
             }
         }
-        // Roda a cada 500ms para garantir que pegou os posts carregados
         setInterval(adjustAlignment, 500);
     })();
     </script>
     `;
 
     return `<!-- InstaWix Feed -->
-${fontImport}
+${fontImports}
 <div id="instawix-wrapper">
   <div 
     id="instawix-feed" 
