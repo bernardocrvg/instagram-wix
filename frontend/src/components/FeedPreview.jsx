@@ -57,8 +57,6 @@ export default function FeedPreview({ config, isLoading, posts }) {
   }
 
   // Lógica de Alinhamento (CORRIGIDA)
-  // Se tiver menos posts que colunas, reduzimos o número de colunas do grid
-  // para que o wrapper flex possa alinhar o bloco corretamente.
   const numColumns = config.feedType === 'fixed' ? 5 : config.columns;
   const actualColumns = Math.min(displayPosts.length || numColumns, numColumns);
 
@@ -71,25 +69,22 @@ export default function FeedPreview({ config, isLoading, posts }) {
   const gridStyle = {
     display: 'grid',
     gap: `${config.gap}px`,
-    // Usa o número real de colunas (encolhe se tiver poucos itens)
     gridTemplateColumns: `repeat(${actualColumns}, 1fr)`,
-    // Se estiver centralizado, a largura deve ser fit-content para não ocupar 100% e impedir o centro
     width: config.alignment === 'center' ? 'fit-content' : '100%',
     maxWidth: '100%'
   };
 
-  // Se estiver carregando, usamos o grid cheio para o esqueleto
   if (isLoading) {
       gridStyle.gridTemplateColumns = `repeat(${numColumns}, 1fr)`;
       gridStyle.width = '100%';
   }
 
-  // Estilos de Paginação (Com Hover Cruzado)
+  // Estilos de Paginação (Com Hover Cruzado e Bordas)
   const baseBtnStyle = {
     fontFamily: config.btnFontFamily,
     fontWeight: config.btnFontWeight,
     borderRadius: `${config.btnRadius}px`,
-    border: '1px solid rgba(0,0,0,0.1)',
+    border: `${config.btnBorderWidth}px solid ${config.btnBorderColor}`,
     padding: '8px 16px',
     fontSize: '14px',
     cursor: 'pointer',
@@ -100,14 +95,17 @@ export default function FeedPreview({ config, isLoading, posts }) {
     ...baseBtnStyle,
     color: hoverPrev ? config.btnNextTextColor : config.btnPrevTextColor,
     backgroundColor: hoverPrev ? config.btnNextBgColor : config.btnPrevBgColor,
-    opacity: currentPage === 1 ? 0.5 : 1
+    // Opacidade só se estiver desabilitado
+    opacity: currentPage === 1 ? 0.5 : 1,
+    cursor: currentPage === 1 ? 'default' : 'pointer'
   };
 
   const nextBtnStyle = {
     ...baseBtnStyle,
     color: hoverNext ? config.btnPrevTextColor : config.btnNextTextColor,
     backgroundColor: hoverNext ? config.btnPrevBgColor : config.btnNextBgColor,
-    opacity: currentPage === totalPages ? 0.5 : 1
+    opacity: currentPage === totalPages ? 0.5 : 1,
+    cursor: currentPage === totalPages ? 'default' : 'pointer'
   };
 
   const infoStyle = {

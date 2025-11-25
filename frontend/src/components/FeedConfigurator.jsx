@@ -38,6 +38,33 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
     setConfig({ ...config, customFontUrl: tempFontUrl });
   };
 
+  // Componente auxiliar para o seletor de cor com Hex
+  const ColorPicker = ({ label, value, onChange }) => (
+    <div className="space-y-2">
+        <Label className="text-[10px] text-muted-foreground">{label}</Label>
+        <div className="flex gap-2 items-center">
+            <div className="relative w-8 h-8 shrink-0">
+                <Input 
+                    type="color" 
+                    value={value} 
+                    onChange={(e) => onChange(e.target.value)} 
+                    className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" 
+                />
+                <div 
+                    className="w-full h-full rounded border shadow-sm" 
+                    style={{ backgroundColor: value }} 
+                />
+            </div>
+            <Input 
+                value={value} 
+                onChange={(e) => onChange(e.target.value)} 
+                className="font-mono text-xs h-8 uppercase" 
+                maxLength={7} 
+            />
+        </div>
+    </div>
+  );
+
   return (
     <Card className="h-full border-none shadow-xl bg-card/50 backdrop-blur-sm">
       <CardHeader>
@@ -142,20 +169,16 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                 <div className="space-y-2">
                     <Label className="text-xs font-semibold">Botão Anterior</Label>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="flex gap-2 items-center">
-                            <div className="relative w-8 h-8 shrink-0">
-                                <Input type="color" value={config.btnPrevTextColor} onChange={(e) => setConfig({...config, btnPrevTextColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
-                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnPrevTextColor }} />
-                            </div>
-                            <span className="text-[10px] text-muted-foreground">Texto</span>
-                        </div>
-                        <div className="flex gap-2 items-center">
-                            <div className="relative w-8 h-8 shrink-0">
-                                <Input type="color" value={config.btnPrevBgColor} onChange={(e) => setConfig({...config, btnPrevBgColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
-                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnPrevBgColor }} />
-                            </div>
-                            <span className="text-[10px] text-muted-foreground">Fundo</span>
-                        </div>
+                        <ColorPicker 
+                            label="Texto" 
+                            value={config.btnPrevTextColor} 
+                            onChange={(val) => setConfig({...config, btnPrevTextColor: val})} 
+                        />
+                        <ColorPicker 
+                            label="Fundo" 
+                            value={config.btnPrevBgColor} 
+                            onChange={(val) => setConfig({...config, btnPrevBgColor: val})} 
+                        />
                     </div>
                 </div>
 
@@ -163,20 +186,35 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                 <div className="space-y-2">
                     <Label className="text-xs font-semibold">Botão Próximo</Label>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="flex gap-2 items-center">
-                            <div className="relative w-8 h-8 shrink-0">
-                                <Input type="color" value={config.btnNextTextColor} onChange={(e) => setConfig({...config, btnNextTextColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
-                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnNextTextColor }} />
+                        <ColorPicker 
+                            label="Texto" 
+                            value={config.btnNextTextColor} 
+                            onChange={(val) => setConfig({...config, btnNextTextColor: val})} 
+                        />
+                        <ColorPicker 
+                            label="Fundo" 
+                            value={config.btnNextBgColor} 
+                            onChange={(val) => setConfig({...config, btnNextBgColor: val})} 
+                        />
+                    </div>
+                </div>
+
+                {/* Borda dos Botões */}
+                <div className="space-y-2">
+                    <Label className="text-xs font-semibold">Borda dos Botões</Label>
+                    <div className="grid grid-cols-2 gap-4 items-end">
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Label className="text-[10px] text-muted-foreground">Espessura</Label>
+                                <span className="text-[10px] text-muted-foreground">{config.btnBorderWidth}px</span>
                             </div>
-                            <span className="text-[10px] text-muted-foreground">Texto</span>
+                            <Slider value={[config.btnBorderWidth]} min={0} max={10} step={1} onValueChange={(val) => setConfig({...config, btnBorderWidth: val[0]})} />
                         </div>
-                        <div className="flex gap-2 items-center">
-                            <div className="relative w-8 h-8 shrink-0">
-                                <Input type="color" value={config.btnNextBgColor} onChange={(e) => setConfig({...config, btnNextBgColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
-                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnNextBgColor }} />
-                            </div>
-                            <span className="text-[10px] text-muted-foreground">Fundo</span>
-                        </div>
+                        <ColorPicker 
+                            label="Cor da Borda" 
+                            value={config.btnBorderColor} 
+                            onChange={(val) => setConfig({...config, btnBorderColor: val})} 
+                        />
                     </div>
                 </div>
 

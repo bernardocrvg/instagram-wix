@@ -41,7 +41,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
         fontImports += `<style>@font-face { font-family: 'CustomFont'; src: url('${config.customFontUrl}'); }</style>\n`;
     }
 
-    // Lógica de Alinhamento (CORRIGIDA)
+    // Lógica de Alinhamento
     let wrapperStyle = `display: flex; width: 100%; justify-content: ${config.alignment};`;
     let gridWidth = config.alignment === 'center' ? 'width: fit-content; max-width: 100%;' : 'width: 100%;';
 
@@ -119,7 +119,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     font-family: ${config.btnFontFamily === 'custom' ? 'sans-serif' : `'${config.btnFontFamily}', sans-serif`};
     font-weight: ${config.btnFontWeight};
     border-radius: ${config.btnRadius}px;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: ${config.btnBorderWidth}px solid ${config.btnBorderColor};
     padding: 8px 16px;
     font-size: 14px;
     cursor: pointer;
