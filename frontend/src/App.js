@@ -13,14 +13,20 @@ export default function App() {
   const [config, setConfig] = useState({
     username: '', 
     hashtag: '',
-    feedType: 'fixed', // 'fixed', 'custom', 'paginated'
+    feedType: 'fixed',
     columns: 5,
     rows: 1,
     gap: 12,
     showCaptions: true,
     refreshInterval: 300,
-    aspectRatio: '1/1', // '1/1', '3/4', '4/5', '9/16'
-    itemsPerPage: 12 // Para o modo paginado
+    aspectRatio: '1/1',
+    itemsPerPage: 12,
+    // Novos campos de personalização
+    borderRadius: 0,
+    alignment: 'center', // 'start', 'center', 'end'
+    fontFamily: 'Inter', // Default
+    fontWeight: '400',
+    customFontUrl: '' // Para upload/link externo
   });
   
   const [isCodeOpen, setIsCodeOpen] = useState(false);

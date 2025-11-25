@@ -7,7 +7,12 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search, BookOpen } from 'lucide-react';
+import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search, BookOpen, AlignLeft, AlignCenter, AlignRight, Type } from 'lucide-react';
+
+const GOOGLE_FONTS = [
+  "Inter", "Montserrat", "Roboto", "Open Sans", "Lato", "Poppins", 
+  "Playfair Display", "Merriweather", "Nunito", "Raleway", "Oswald"
+];
 
 export default function FeedConfigurator({ config, setConfig, onGenerate, isLoading }) {
   
@@ -120,10 +125,23 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
             </Tabs>
         </div>
 
-        {/* Layout Settings */}
+        {/* Estilo e Layout */}
         <div className="space-y-6">
-          
-          {/* Proporção da Imagem */}
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Estilo</h3>
+
+          {/* Alinhamento */}
+          <div className="space-y-2">
+            <Label>Alinhamento do Feed</Label>
+            <Tabs value={config.alignment} onValueChange={(val) => setConfig({...config, alignment: val})} className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="start"><AlignLeft className="w-4 h-4" /></TabsTrigger>
+                    <TabsTrigger value="center"><AlignCenter className="w-4 h-4" /></TabsTrigger>
+                    <TabsTrigger value="end"><AlignRight className="w-4 h-4" /></TabsTrigger>
+                </TabsList>
+            </Tabs>
+          </div>
+
+          {/* Proporção */}
           <div className="space-y-2">
             <Label>Proporção da Imagem</Label>
             <Select 
@@ -140,6 +158,83 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                     <SelectItem value="9/16">9:16 (Stories)</SelectItem>
                 </SelectContent>
             </Select>
+          </div>
+
+          {/* Tipografia */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+                <Type className="w-4 h-4 text-muted-foreground" />
+                <Label>Tipografia da Legenda</Label>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+                <Select 
+                    value={config.fontFamily} 
+                    onValueChange={(val) => setConfig({...config, fontFamily: val})}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Fonte" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {GOOGLE_FONTS.map(font => (
+                            <SelectItem key={font} value={font}>{font}</SelectItem>
+                        ))}
+                        <SelectItem value="custom">Outra (Link)</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                <Select 
+                    value={config.fontWeight} 
+                    onValueChange={(val) => setConfig({...config, fontWeight: val})}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Peso" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="300">Leve (300)</SelectItem>
+                        <SelectItem value="400">Normal (400)</SelectItem>
+                        <SelectItem value="500">Médio (500)</SelectItem>
+                        <SelectItem value="700">Negrito (700)</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            
+            {config.fontFamily === 'custom' && (
+                <Input 
+                    placeholder="URL da fonte (ex: .woff2) ou Nome" 
+                    value={config.customFontUrl}
+                    onChange={(e) => setConfig({...config, customFontUrl: e.target.value})}
+                    className="text-xs"
+                />
+            )}
+          </div>
+
+          {/* Sliders */}
+          <div className="space-y-4">
+            <div className="flex justify-between">
+              <Label>Arredondamento (Radius)</Label>
+              <span className="text-sm text-muted-foreground">{config.borderRadius}px</span>
+            </div>
+            <Slider 
+              value={[config.borderRadius]} 
+              min={0} 
+              max={50} 
+              step={1} 
+              onValueChange={(val) => setConfig({...config, borderRadius: val[0]})}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex justify-between">
+              <Label>Espaçamento (Gap)</Label>
+              <span className="text-sm text-muted-foreground">{config.gap}px</span>
+            </div>
+            <Slider 
+              value={[config.gap]} 
+              min={0} 
+              max={50} 
+              step={1} 
+              onValueChange={(val) => setConfig({...config, gap: val[0]})}
+            />
           </div>
 
           {(config.feedType === 'custom' || config.feedType === 'paginated') && (
@@ -181,20 +276,6 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                 </div>
             </>
           )}
-
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <Label>Espaçamento (px)</Label>
-              <span className="text-sm text-muted-foreground">{config.gap}px</span>
-            </div>
-            <Slider 
-              value={[config.gap]} 
-              min={0} 
-              max={40} 
-              step={4} 
-              onValueChange={(val) => setConfig({...config, gap: val[0]})}
-            />
-          </div>
 
           <div className="flex items-center justify-between pt-2">
             <Label htmlFor="show-captions" className="cursor-pointer">Mostrar Legendas</Label>

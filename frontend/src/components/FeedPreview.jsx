@@ -11,6 +11,17 @@ export default function FeedPreview({ config, isLoading, posts }) {
     setCurrentPage(1);
   }, [config.feedType, config.hashtag]);
 
+  // Carrega a fonte do Google dinamicamente para o preview
+  useEffect(() => {
+    if (config.fontFamily && config.fontFamily !== 'custom') {
+        const link = document.createElement('link');
+        link.href = `https://fonts.googleapis.com/css2?family=${config.fontFamily.replace(/ /g, '+')}:wght@${config.fontWeight}&display=swap`;
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+        return () => document.head.removeChild(link);
+    }
+  }, [config.fontFamily, config.fontWeight]);
+
   // Calculate limits
   let displayPosts = [];
   let totalPages = 1;
@@ -26,6 +37,19 @@ export default function FeedPreview({ config, isLoading, posts }) {
     const start = (currentPage - 1) * limit;
     displayPosts = posts.slice(start, start + limit);
   }
+
+  // Estilo do container para alinhamento
+  const containerStyle = {
+    display: 'grid',
+    width: '100%',
+    gap: `${config.gap}px`,
+    gridTemplateColumns: config.feedType === 'fixed' 
+        ? `repeat(5, 1fr)` 
+        : `repeat(${config.columns}, 1fr)`,
+    // Alinhamento (simulado no grid)
+    justifyContent: config.alignment,
+    maxWidth: config.alignment === 'center' ? '100%' : 'auto'
+  };
 
   return (
     <div className="w-full h-full min-h-[500px] bg-white rounded-xl border shadow-sm overflow-hidden flex flex-col">
@@ -51,20 +75,17 @@ export default function FeedPreview({ config, isLoading, posts }) {
                 {config.hashtag && <p className="text-xs mt-2">Tente remover o filtro de hashtag.</p>}
             </div>
         ) : (
-            <div className="flex-1">
-                <div 
-                className="grid w-full transition-all duration-500 ease-in-out"
-                style={{
-                    gridTemplateColumns: `repeat(${config.columns}, minmax(0, 1fr))`,
-                    gap: `${config.gap}px`
-                }}
-                >
+            <div className="flex-1 w-full">
+                <div style={containerStyle}>
                 {isLoading ? (
                     Array(config.feedType === 'fixed' ? 5 : (config.columns * (config.rows || 2))).fill(null).map((_, i) => (
                         <Skeleton 
                             key={`skeleton-${i}`} 
-                            className="w-full rounded-md" 
-                            style={{ aspectRatio: config.aspectRatio }}
+                            className="w-full" 
+                            style={{ 
+                                aspectRatio: config.aspectRatio,
+                                borderRadius: `${config.borderRadius}px`
+                            }}
                         />
                     ))
                 ) : (
@@ -74,10 +95,11 @@ export default function FeedPreview({ config, isLoading, posts }) {
                             href={post.permalink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group relative bg-muted rounded-md overflow-hidden cursor-pointer animate-in fade-in zoom-in duration-500 block"
+                            className="group relative bg-muted overflow-hidden cursor-pointer animate-in fade-in zoom-in duration-500 block"
                             style={{ 
                                 animationDelay: `${idx * 50}ms`,
-                                aspectRatio: config.aspectRatio
+                                aspectRatio: config.aspectRatio,
+                                borderRadius: `${config.borderRadius}px`
                             }}
                         >
                         <img 
@@ -88,7 +110,13 @@ export default function FeedPreview({ config, isLoading, posts }) {
                         
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white gap-2 p-4">
                             {config.showCaptions && (
-                            <p className="text-xs text-center line-clamp-3 mt-2 opacity-90 font-medium">
+                            <p 
+                                className="text-xs text-center line-clamp-3 mt-2 opacity-90"
+                                style={{
+                                    fontFamily: config.fontFamily === 'custom' ? 'inherit' : config.fontFamily,
+                                    fontWeight: config.fontWeight
+                                }}
+                            >
                                 {post.caption}
                             </p>
                             )}

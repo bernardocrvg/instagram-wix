@@ -18,13 +18,38 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     const totalPosts = config.feedType === 'fixed' ? 5 : (config.columns * config.rows);
     const scriptUrl = getScriptUrl();
     
-    // CSS Base com suporte a Legendas
+    // Gera o link da fonte do Google se necessário
+    let fontImport = '';
+    let fontFamily = 'sans-serif';
+    
+    if (config.fontFamily && config.fontFamily !== 'custom') {
+        fontFamily = `'${config.fontFamily}', sans-serif`;
+        fontImport = `<link href="https://fonts.googleapis.com/css2?family=${config.fontFamily.replace(/ /g, '+')}:wght@${config.fontWeight}&display=swap" rel="stylesheet">`;
+    } else if (config.fontFamily === 'custom' && config.customFontUrl) {
+        // Se for URL de arquivo de fonte
+        if (config.customFontUrl.includes('.')) {
+            fontImport = `<style>@font-face { font-family: 'CustomFont'; src: url('${config.customFontUrl}'); }</style>`;
+            fontFamily = "'CustomFont', sans-serif";
+        } else {
+            // Se for apenas nome de fonte já existente no site
+            fontFamily = `'${config.customFontUrl}', sans-serif`;
+        }
+    }
+
+    // Lógica de Alinhamento
+    let containerAlign = '';
+    if (config.alignment === 'center') containerAlign = 'margin: 0 auto;';
+    if (config.alignment === 'end') containerAlign = 'margin-left: auto;';
+    if (config.alignment === 'start') containerAlign = 'margin-right: auto;';
+
+    // CSS Base
     const baseCss = `
   #instawix-feed { 
     display: grid; 
     width: 100%; 
     gap: ${config.gap}px;
     box-sizing: border-box;
+    ${containerAlign}
   }
   .instawix-post { 
     width: 100%; 
@@ -33,7 +58,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     display: block;
     position: relative;
     overflow: hidden;
-    border-radius: 4px;
+    border-radius: ${config.borderRadius}px;
   }
   .instawix-post img {
     width: 100%;
@@ -41,6 +66,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     object-fit: cover;
     transition: transform 0.3s;
     display: block;
+    border-radius: ${config.borderRadius}px;
   }
   .instawix-post:hover img {
     transform: scale(1.05);
@@ -56,13 +82,15 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    border-radius: ${config.borderRadius}px;
   }
   .instawix-post:hover .instawix-overlay {
     opacity: 1;
   }
   .instawix-caption {
     color: white;
-    font-family: sans-serif;
+    font-family: ${fontFamily};
+    font-weight: ${config.fontWeight};
     font-size: 12px;
     text-align: center;
     display: -webkit-box;
@@ -97,6 +125,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     }
 
     return `<!-- InstaWix Feed -->
+${fontImport}
 <div 
   id="instawix-feed" 
   data-user="${config.username}" 
