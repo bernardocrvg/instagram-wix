@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -138,32 +138,51 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                     <MousePointerClick className="w-4 h-4" /> Estilo da Paginação
                 </h3>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label>Cor do Texto (Botão)</Label>
+                {/* Botão Anterior */}
+                <div className="space-y-2">
+                    <Label className="text-xs font-semibold">Botão Anterior</Label>
+                    <div className="grid grid-cols-2 gap-4">
                         <div className="flex gap-2 items-center">
                             <div className="relative w-8 h-8 shrink-0">
-                                <Input type="color" value={config.btnTextColor} onChange={(e) => setConfig({...config, btnTextColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
-                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnTextColor }} />
+                                <Input type="color" value={config.btnPrevTextColor} onChange={(e) => setConfig({...config, btnPrevTextColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
+                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnPrevTextColor }} />
                             </div>
-                            <Input value={config.btnTextColor} onChange={(e) => setConfig({...config, btnTextColor: e.target.value})} className="font-mono text-xs h-8 uppercase" maxLength={7} />
+                            <span className="text-[10px] text-muted-foreground">Texto</span>
+                        </div>
+                        <div className="flex gap-2 items-center">
+                            <div className="relative w-8 h-8 shrink-0">
+                                <Input type="color" value={config.btnPrevBgColor} onChange={(e) => setConfig({...config, btnPrevBgColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
+                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnPrevBgColor }} />
+                            </div>
+                            <span className="text-[10px] text-muted-foreground">Fundo</span>
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label>Cor do Fundo (Botão)</Label>
+                </div>
+
+                {/* Botão Próximo */}
+                <div className="space-y-2">
+                    <Label className="text-xs font-semibold">Botão Próximo</Label>
+                    <div className="grid grid-cols-2 gap-4">
                         <div className="flex gap-2 items-center">
                             <div className="relative w-8 h-8 shrink-0">
-                                <Input type="color" value={config.btnBgColor} onChange={(e) => setConfig({...config, btnBgColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
-                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnBgColor }} />
+                                <Input type="color" value={config.btnNextTextColor} onChange={(e) => setConfig({...config, btnNextTextColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
+                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnNextTextColor }} />
                             </div>
-                            <Input value={config.btnBgColor} onChange={(e) => setConfig({...config, btnBgColor: e.target.value})} className="font-mono text-xs h-8 uppercase" maxLength={7} />
+                            <span className="text-[10px] text-muted-foreground">Texto</span>
+                        </div>
+                        <div className="flex gap-2 items-center">
+                            <div className="relative w-8 h-8 shrink-0">
+                                <Input type="color" value={config.btnNextBgColor} onChange={(e) => setConfig({...config, btnNextBgColor: e.target.value})} className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0" />
+                                <div className="w-full h-full rounded border shadow-sm" style={{ backgroundColor: config.btnNextBgColor }} />
+                            </div>
+                            <span className="text-[10px] text-muted-foreground">Fundo</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label>Fonte do Botão</Label>
+                        <Label>Fonte Botões</Label>
                         <Select value={config.btnFontFamily} onValueChange={(val) => setConfig({...config, btnFontFamily: val})}>
                             <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -172,11 +191,40 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>Fonte do Info</Label>
+                        <Label>Peso Botões</Label>
+                        <Select value={config.btnFontWeight} onValueChange={(val) => setConfig({...config, btnFontWeight: val})}>
+                            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="300">Leve</SelectItem>
+                                <SelectItem value="400">Normal</SelectItem>
+                                <SelectItem value="600">Semi-Bold</SelectItem>
+                                <SelectItem value="700">Bold</SelectItem>
+                                <SelectItem value="800">Extra</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label>Fonte Info</Label>
                         <Select value={config.infoFontFamily} onValueChange={(val) => setConfig({...config, infoFontFamily: val})}>
                             <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                             <SelectContent>
                                 {GOOGLE_FONTS.map(font => (<SelectItem key={font} value={font}>{font}</SelectItem>))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Peso Info</Label>
+                        <Select value={config.infoFontWeight} onValueChange={(val) => setConfig({...config, infoFontWeight: val})}>
+                            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="300">Leve</SelectItem>
+                                <SelectItem value="400">Normal</SelectItem>
+                                <SelectItem value="600">Semi-Bold</SelectItem>
+                                <SelectItem value="700">Bold</SelectItem>
+                                <SelectItem value="800">Extra</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

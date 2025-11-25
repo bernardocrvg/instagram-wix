@@ -13,6 +13,8 @@ const hexToRgba = (hex, alpha) => {
 
 export default function FeedPreview({ config, isLoading, posts }) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [hoverPrev, setHoverPrev] = useState(false);
+  const [hoverNext, setHoverNext] = useState(false);
 
   // Reset page when config changes
   useEffect(() => {
@@ -54,7 +56,12 @@ export default function FeedPreview({ config, isLoading, posts }) {
     displayPosts = posts.slice(start, start + limit);
   }
 
-  // Estilo do container para alinhamento
+  // Lógica de Alinhamento (CORRIGIDA)
+  // Se tiver menos posts que colunas, reduzimos o número de colunas do grid
+  // para que o wrapper flex possa alinhar o bloco corretamente.
+  const numColumns = config.feedType === 'fixed' ? 5 : config.columns;
+  const actualColumns = Math.min(displayPosts.length || numColumns, numColumns);
+
   const wrapperStyle = {
     display: 'flex',
     justifyContent: config.alignment, // 'start', 'center', 'end'
@@ -64,29 +71,49 @@ export default function FeedPreview({ config, isLoading, posts }) {
   const gridStyle = {
     display: 'grid',
     gap: `${config.gap}px`,
-    gridTemplateColumns: config.feedType === 'fixed' 
-        ? `repeat(5, 1fr)` 
-        : `repeat(${config.columns}, 1fr)`,
+    // Usa o número real de colunas (encolhe se tiver poucos itens)
+    gridTemplateColumns: `repeat(${actualColumns}, 1fr)`,
+    // Se estiver centralizado, a largura deve ser fit-content para não ocupar 100% e impedir o centro
     width: config.alignment === 'center' ? 'fit-content' : '100%',
     maxWidth: '100%'
   };
 
-  // Estilos de Paginação
-  const btnStyle = {
-    color: config.btnTextColor,
-    backgroundColor: config.btnBgColor,
+  // Se estiver carregando, usamos o grid cheio para o esqueleto
+  if (isLoading) {
+      gridStyle.gridTemplateColumns = `repeat(${numColumns}, 1fr)`;
+      gridStyle.width = '100%';
+  }
+
+  // Estilos de Paginação (Com Hover Cruzado)
+  const baseBtnStyle = {
     fontFamily: config.btnFontFamily,
+    fontWeight: config.btnFontWeight,
     borderRadius: `${config.btnRadius}px`,
     border: '1px solid rgba(0,0,0,0.1)',
     padding: '8px 16px',
     fontSize: '14px',
     cursor: 'pointer',
-    transition: 'opacity 0.2s'
+    transition: 'all 0.2s'
+  };
+
+  const prevBtnStyle = {
+    ...baseBtnStyle,
+    color: hoverPrev ? config.btnNextTextColor : config.btnPrevTextColor,
+    backgroundColor: hoverPrev ? config.btnNextBgColor : config.btnPrevBgColor,
+    opacity: currentPage === 1 ? 0.5 : 1
+  };
+
+  const nextBtnStyle = {
+    ...baseBtnStyle,
+    color: hoverNext ? config.btnPrevTextColor : config.btnNextTextColor,
+    backgroundColor: hoverNext ? config.btnPrevBgColor : config.btnNextBgColor,
+    opacity: currentPage === totalPages ? 0.5 : 1
   };
 
   const infoStyle = {
     color: config.infoTextColor,
     fontFamily: config.infoFontFamily,
+    fontWeight: config.infoFontWeight,
     fontSize: '14px'
   };
 
@@ -181,9 +208,11 @@ export default function FeedPreview({ config, isLoading, posts }) {
         {config.feedType === 'paginated' && totalPages > 1 && !isLoading && (
             <div className="mt-6 flex items-center justify-center gap-4 pt-4 border-t">
                 <button 
-                    style={{...btnStyle, opacity: currentPage === 1 ? 0.5 : 1}}
+                    style={prevBtnStyle}
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
+                    onMouseEnter={() => setHoverPrev(true)}
+                    onMouseLeave={() => setHoverPrev(false)}
                 >
                     &lt; Anterior
                 </button>
@@ -191,9 +220,11 @@ export default function FeedPreview({ config, isLoading, posts }) {
                     Página {currentPage} de {totalPages}
                 </span>
                 <button 
-                    style={{...btnStyle, opacity: currentPage === totalPages ? 0.5 : 1}}
+                    style={nextBtnStyle}
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
+                    onMouseEnter={() => setHoverNext(true)}
+                    onMouseLeave={() => setHoverNext(false)}
                 >
                     Próximo &gt;
                 </button>

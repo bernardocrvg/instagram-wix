@@ -37,12 +37,11 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
         fontImports += `<link href="https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">\n`;
     });
 
-    // Fonte Customizada
     if (config.fontFamily === 'custom' && config.customFontUrl && config.customFontUrl.includes('.')) {
         fontImports += `<style>@font-face { font-family: 'CustomFont'; src: url('${config.customFontUrl}'); }</style>\n`;
     }
 
-    // Lógica de Alinhamento
+    // Lógica de Alinhamento (CORRIGIDA)
     let wrapperStyle = `display: flex; width: 100%; justify-content: ${config.alignment};`;
     let gridWidth = config.alignment === 'center' ? 'width: fit-content; max-width: 100%;' : 'width: 100%;';
 
@@ -116,24 +115,43 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     width: 100%;
     grid-column: 1 / -1;
   }
-  .instawix-nav button {
-    color: ${config.btnTextColor};
-    background-color: ${config.btnBgColor};
+  .instawix-btn {
     font-family: ${config.btnFontFamily === 'custom' ? 'sans-serif' : `'${config.btnFontFamily}', sans-serif`};
+    font-weight: ${config.btnFontWeight};
     border-radius: ${config.btnRadius}px;
     border: 1px solid rgba(0,0,0,0.1);
     padding: 8px 16px;
     font-size: 14px;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
   }
-  .instawix-nav button:disabled {
+  .instawix-btn:disabled {
     opacity: 0.5;
     cursor: default;
   }
-  .instawix-nav span {
+  /* Botão Anterior */
+  .instawix-prev {
+    color: ${config.btnPrevTextColor};
+    background-color: ${config.btnPrevBgColor};
+  }
+  .instawix-prev:not(:disabled):hover {
+    color: ${config.btnNextTextColor};
+    background-color: ${config.btnNextBgColor};
+  }
+  /* Botão Próximo */
+  .instawix-next {
+    color: ${config.btnNextTextColor};
+    background-color: ${config.btnNextBgColor};
+  }
+  .instawix-next:not(:disabled):hover {
+    color: ${config.btnPrevTextColor};
+    background-color: ${config.btnPrevBgColor};
+  }
+  
+  .instawix-info {
     color: ${config.infoTextColor};
     font-family: ${config.infoFontFamily === 'custom' ? 'sans-serif' : `'${config.infoFontFamily}', sans-serif`};
+    font-weight: ${config.infoFontWeight};
     font-size: 14px;
     align-self: center;
   }
@@ -153,14 +171,19 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
 `;
     } else {
         layoutCss = `
+  /* Desktop (Padrão escolhido) */
   #instawix-feed { 
     grid-template-columns: repeat(${config.columns}, 1fr);
   }
+  
+  /* Tablet (Máximo 3 colunas) */
   @media (max-width: 768px) {
     #instawix-feed { 
       grid-template-columns: repeat(${Math.min(config.columns, 3)}, 1fr); 
     } 
   }
+
+  /* Mobile (Máximo 2 colunas) */
   @media (max-width: 480px) {
     #instawix-feed { 
       grid-template-columns: repeat(${Math.min(config.columns, 2)}, 1fr); 

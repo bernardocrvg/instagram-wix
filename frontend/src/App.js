@@ -29,13 +29,22 @@ export default function App() {
     captionColor: '#ffffff',
     overlayColor: '#000000',
     overlayOpacity: 50,
-    // Novas configurações de Paginação
-    btnTextColor: '#333333',
-    btnBgColor: '#ffffff',
+    
+    // Configurações de Paginação Avançadas
+    // Botão Anterior
+    btnPrevTextColor: '#333333',
+    btnPrevBgColor: '#ffffff',
+    // Botão Próximo
+    btnNextTextColor: '#ffffff',
+    btnNextBgColor: '#000000',
+    
     btnFontFamily: 'Inter',
+    btnFontWeight: '400', // Novo
     btnRadius: 4,
+    
     infoTextColor: '#666666',
-    infoFontFamily: 'Inter'
+    infoFontFamily: 'Inter',
+    infoFontWeight: '400' // Novo
   });
   
   const [isCodeOpen, setIsCodeOpen] = useState(false);
