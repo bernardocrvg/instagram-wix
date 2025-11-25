@@ -21,12 +21,11 @@ export default function App() {
     refreshInterval: 300,
     aspectRatio: '1/1',
     itemsPerPage: 12,
-    // Novos campos de personalização
     borderRadius: 0,
-    alignment: 'center', // 'start', 'center', 'end'
-    fontFamily: 'Inter', // Default
+    alignment: 'center',
+    fontFamily: 'Inter',
     fontWeight: '400',
-    customFontUrl: '' // Para upload/link externo
+    customFontUrl: ''
   });
   
   const [isCodeOpen, setIsCodeOpen] = useState(false);
@@ -215,7 +214,11 @@ export default function App() {
 
       <footer className="py-12 border-t bg-muted/20">
         <div className="container mx-auto px-4 text-center text-muted-foreground text-sm">
-          <p>&copy; 2024 InstaWix Feed Generator. Feito para criadores.</p>
+          <p>
+            &copy; {new Date().getFullYear()} InstaWix Feed Generator. 
+            Idealizado por <a href="https://github.com/bernardocrvg" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">bernardocrvg</a> e 
+            feito por <a href="https://emergent.sh" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Emergent AI</a>.
+          </p>
         </div>
       </footer>
 

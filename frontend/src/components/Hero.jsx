@@ -31,9 +31,6 @@ export default function Hero({ scrollToConfig }) {
             Criar Meu Feed
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
-          <Button size="lg" variant="outline" className="h-12 px-8 text-base">
-            Ver Demo
-          </Button>
         </div>
       </div>
     </section>

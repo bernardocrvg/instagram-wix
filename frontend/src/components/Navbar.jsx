@@ -14,13 +14,12 @@ export default function Navbar() {
         </div>
         
         <div className="flex items-center gap-4">
-          <a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden md:block">
-            Como funciona
-          </a>
-          <a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden md:block">
-            Recursos
-          </a>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={() => window.open('https://github.com/bernardocrvg/instagram-wix', '_blank')}
+          >
             <Github size={16} />
             <span>Ver no GitHub</span>
           </Button>

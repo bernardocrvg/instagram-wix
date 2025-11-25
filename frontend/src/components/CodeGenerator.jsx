@@ -26,12 +26,10 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
         fontFamily = `'${config.fontFamily}', sans-serif`;
         fontImport = `<link href="https://fonts.googleapis.com/css2?family=${config.fontFamily.replace(/ /g, '+')}:wght@${config.fontWeight}&display=swap" rel="stylesheet">`;
     } else if (config.fontFamily === 'custom' && config.customFontUrl) {
-        // Se for URL de arquivo de fonte
         if (config.customFontUrl.includes('.')) {
             fontImport = `<style>@font-face { font-family: 'CustomFont'; src: url('${config.customFontUrl}'); }</style>`;
             fontFamily = "'CustomFont', sans-serif";
         } else {
-            // Se for apenas nome de fonte já existente no site
             fontFamily = `'${config.customFontUrl}', sans-serif`;
         }
     }
@@ -102,24 +100,43 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   }
 `;
 
+    // CSS Específico por Tipo (Com Responsividade Inteligente)
     let layoutCss = '';
     
     if (config.feedType === 'fixed') {
         layoutCss = `
+  /* Desktop: 5 colunas */
   @media (min-width: 768px) {
     #instawix-feed { grid-template-columns: repeat(5, 1fr); }
   }
+  /* Mobile: 1 coluna */
   @media (max-width: 767px) {
     #instawix-feed { grid-template-columns: 1fr; }
   }
 `;
     } else {
+        // Lógica Inteligente para Grade e Páginas
+        // Desktop: Usa o número de colunas escolhido
+        // Tablet: Máximo 3 colunas (para não ficar muito pequeno)
+        // Mobile: Máximo 2 colunas (ou 1 se for muito estreito)
         layoutCss = `
+  /* Desktop (Padrão escolhido) */
   #instawix-feed { 
     grid-template-columns: repeat(${config.columns}, 1fr);
   }
-  @media (max-width: 600px) {
-    #instawix-feed { grid-template-columns: repeat(2, 1fr); } 
+  
+  /* Tablet (Máximo 3 colunas) */
+  @media (max-width: 768px) {
+    #instawix-feed { 
+      grid-template-columns: repeat(${Math.min(config.columns, 3)}, 1fr); 
+    } 
+  }
+
+  /* Mobile (Máximo 2 colunas) */
+  @media (max-width: 480px) {
+    #instawix-feed { 
+      grid-template-columns: repeat(${Math.min(config.columns, 2)}, 1fr); 
+    } 
   }
 `;
     }
