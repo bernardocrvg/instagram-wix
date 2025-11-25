@@ -31,18 +31,21 @@ export default function App() {
     overlayOpacity: 50,
     
     // Configurações de Paginação Avançadas
+    // Botão Anterior
     btnPrevTextColor: '#333333',
     btnPrevBgColor: '#ffffff',
+    btnPrevBorderWidth: 1,
+    btnPrevBorderColor: '#e5e5e5',
+    
+    // Botão Próximo
     btnNextTextColor: '#ffffff',
     btnNextBgColor: '#000000',
+    btnNextBorderWidth: 1,
+    btnNextBorderColor: '#000000',
     
     btnFontFamily: 'Inter',
     btnFontWeight: '400',
     btnRadius: 4,
-    
-    // Novas configurações de Borda
-    btnBorderWidth: 1,
-    btnBorderColor: '#e5e5e5',
     
     infoTextColor: '#666666',
     infoFontFamily: 'Inter',

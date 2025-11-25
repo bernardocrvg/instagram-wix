@@ -119,7 +119,6 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     font-family: ${config.btnFontFamily === 'custom' ? 'sans-serif' : `'${config.btnFontFamily}', sans-serif`};
     font-weight: ${config.btnFontWeight};
     border-radius: ${config.btnRadius}px;
-    border: ${config.btnBorderWidth}px solid ${config.btnBorderColor};
     padding: 8px 16px;
     font-size: 14px;
     cursor: pointer;
@@ -133,19 +132,23 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   .instawix-prev {
     color: ${config.btnPrevTextColor};
     background-color: ${config.btnPrevBgColor};
+    border: ${config.btnPrevBorderWidth}px solid ${config.btnPrevBorderColor};
   }
   .instawix-prev:not(:disabled):hover {
     color: ${config.btnNextTextColor};
     background-color: ${config.btnNextBgColor};
+    border: ${config.btnNextBorderWidth}px solid ${config.btnNextBorderColor};
   }
   /* Botão Próximo */
   .instawix-next {
     color: ${config.btnNextTextColor};
     background-color: ${config.btnNextBgColor};
+    border: ${config.btnNextBorderWidth}px solid ${config.btnNextBorderColor};
   }
   .instawix-next:not(:disabled):hover {
     color: ${config.btnPrevTextColor};
     background-color: ${config.btnPrevBgColor};
+    border: ${config.btnPrevBorderWidth}px solid ${config.btnPrevBorderColor};
   }
   
   .instawix-info {

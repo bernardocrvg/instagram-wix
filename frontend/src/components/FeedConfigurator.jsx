@@ -169,54 +169,43 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                 <div className="space-y-2">
                     <Label className="text-xs font-semibold">Botão Anterior</Label>
                     <div className="grid grid-cols-2 gap-4">
-                        <ColorPicker 
-                            label="Texto" 
-                            value={config.btnPrevTextColor} 
-                            onChange={(val) => setConfig({...config, btnPrevTextColor: val})} 
-                        />
-                        <ColorPicker 
-                            label="Fundo" 
-                            value={config.btnPrevBgColor} 
-                            onChange={(val) => setConfig({...config, btnPrevBgColor: val})} 
-                        />
+                        <ColorPicker label="Texto" value={config.btnPrevTextColor} onChange={(val) => setConfig({...config, btnPrevTextColor: val})} />
+                        <ColorPicker label="Fundo" value={config.btnPrevBgColor} onChange={(val) => setConfig({...config, btnPrevBgColor: val})} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 items-end mt-2">
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Label className="text-[10px] text-muted-foreground">Borda (px)</Label>
+                                <span className="text-[10px] text-muted-foreground">{config.btnPrevBorderWidth}px</span>
+                            </div>
+                            <Slider value={[config.btnPrevBorderWidth]} min={0} max={10} step={1} onValueChange={(val) => setConfig({...config, btnPrevBorderWidth: val[0]})} />
+                        </div>
+                        <ColorPicker label="Cor Borda" value={config.btnPrevBorderColor} onChange={(val) => setConfig({...config, btnPrevBorderColor: val})} />
                     </div>
                 </div>
+
+                <div className="h-px bg-border/50" />
 
                 {/* Botão Próximo */}
                 <div className="space-y-2">
                     <Label className="text-xs font-semibold">Botão Próximo</Label>
                     <div className="grid grid-cols-2 gap-4">
-                        <ColorPicker 
-                            label="Texto" 
-                            value={config.btnNextTextColor} 
-                            onChange={(val) => setConfig({...config, btnNextTextColor: val})} 
-                        />
-                        <ColorPicker 
-                            label="Fundo" 
-                            value={config.btnNextBgColor} 
-                            onChange={(val) => setConfig({...config, btnNextBgColor: val})} 
-                        />
+                        <ColorPicker label="Texto" value={config.btnNextTextColor} onChange={(val) => setConfig({...config, btnNextTextColor: val})} />
+                        <ColorPicker label="Fundo" value={config.btnNextBgColor} onChange={(val) => setConfig({...config, btnNextBgColor: val})} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 items-end mt-2">
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Label className="text-[10px] text-muted-foreground">Borda (px)</Label>
+                                <span className="text-[10px] text-muted-foreground">{config.btnNextBorderWidth}px</span>
+                            </div>
+                            <Slider value={[config.btnNextBorderWidth]} min={0} max={10} step={1} onValueChange={(val) => setConfig({...config, btnNextBorderWidth: val[0]})} />
+                        </div>
+                        <ColorPicker label="Cor Borda" value={config.btnNextBorderColor} onChange={(val) => setConfig({...config, btnNextBorderColor: val})} />
                     </div>
                 </div>
 
-                {/* Borda dos Botões */}
-                <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Borda dos Botões</Label>
-                    <div className="grid grid-cols-2 gap-4 items-end">
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Label className="text-[10px] text-muted-foreground">Espessura</Label>
-                                <span className="text-[10px] text-muted-foreground">{config.btnBorderWidth}px</span>
-                            </div>
-                            <Slider value={[config.btnBorderWidth]} min={0} max={10} step={1} onValueChange={(val) => setConfig({...config, btnBorderWidth: val[0]})} />
-                        </div>
-                        <ColorPicker 
-                            label="Cor da Borda" 
-                            value={config.btnBorderColor} 
-                            onChange={(val) => setConfig({...config, btnBorderColor: val})} 
-                        />
-                    </div>
-                </div>
+                <div className="h-px bg-border/50" />
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">

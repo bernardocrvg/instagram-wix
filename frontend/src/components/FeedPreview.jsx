@@ -79,12 +79,11 @@ export default function FeedPreview({ config, isLoading, posts }) {
       gridStyle.width = '100%';
   }
 
-  // Estilos de Paginação (Com Hover Cruzado e Bordas)
+  // Estilos de Paginação (Com Hover Cruzado e Bordas Independentes)
   const baseBtnStyle = {
     fontFamily: config.btnFontFamily,
     fontWeight: config.btnFontWeight,
     borderRadius: `${config.btnRadius}px`,
-    border: `${config.btnBorderWidth}px solid ${config.btnBorderColor}`,
     padding: '8px 16px',
     fontSize: '14px',
     cursor: 'pointer',
@@ -95,7 +94,7 @@ export default function FeedPreview({ config, isLoading, posts }) {
     ...baseBtnStyle,
     color: hoverPrev ? config.btnNextTextColor : config.btnPrevTextColor,
     backgroundColor: hoverPrev ? config.btnNextBgColor : config.btnPrevBgColor,
-    // Opacidade só se estiver desabilitado
+    border: `${config.btnPrevBorderWidth}px solid ${config.btnPrevBorderColor}`,
     opacity: currentPage === 1 ? 0.5 : 1,
     cursor: currentPage === 1 ? 'default' : 'pointer'
   };
@@ -104,6 +103,7 @@ export default function FeedPreview({ config, isLoading, posts }) {
     ...baseBtnStyle,
     color: hoverNext ? config.btnPrevTextColor : config.btnNextTextColor,
     backgroundColor: hoverNext ? config.btnPrevBgColor : config.btnNextBgColor,
+    border: `${config.btnNextBorderWidth}px solid ${config.btnNextBorderColor}`,
     opacity: currentPage === totalPages ? 0.5 : 1,
     cursor: currentPage === totalPages ? 'default' : 'pointer'
   };
