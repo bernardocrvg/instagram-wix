@@ -3,6 +3,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+// Helper para converter Hex para RGBA
+const hexToRgba = (hex, alpha) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha / 100})`;
+};
+
 export default function FeedPreview({ config, isLoading, posts }) {
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -108,13 +116,19 @@ export default function FeedPreview({ config, isLoading, posts }) {
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                         
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white gap-2 p-4">
+                        <div 
+                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4"
+                            style={{
+                                backgroundColor: hexToRgba(config.overlayColor, config.overlayOpacity)
+                            }}
+                        >
                             {config.showCaptions && (
                             <p 
-                                className="text-xs text-center line-clamp-3 mt-2 opacity-90"
+                                className="text-xs text-center line-clamp-3 mt-2 font-medium"
                                 style={{
                                     fontFamily: config.fontFamily === 'custom' ? 'inherit' : config.fontFamily,
-                                    fontWeight: config.fontWeight
+                                    fontWeight: config.fontWeight,
+                                    color: config.captionColor
                                 }}
                             >
                                 {post.caption}

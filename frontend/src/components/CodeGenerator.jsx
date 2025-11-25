@@ -14,6 +14,14 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     return `${baseUrl}/widget.js`;
   };
 
+  // Helper para converter Hex para RGBA
+  const hexToRgba = (hex, alpha) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha / 100})`;
+  };
+
   const generateCode = () => {
     const totalPosts = config.feedType === 'fixed' ? 5 : (config.columns * config.rows);
     const scriptUrl = getScriptUrl();
@@ -73,7 +81,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   .instawix-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: ${hexToRgba(config.overlayColor, config.overlayOpacity)};
     opacity: 0;
     transition: opacity 0.3s;
     display: flex;
@@ -86,7 +94,7 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
     opacity: 1;
   }
   .instawix-caption {
-    color: white;
+    color: ${config.captionColor};
     font-family: ${fontFamily};
     font-weight: ${config.fontWeight};
     font-size: 12px;
@@ -115,10 +123,6 @@ export default function CodeGenerator({ open, onOpenChange, config }) {
   }
 `;
     } else {
-        // Lógica Inteligente para Grade e Páginas
-        // Desktop: Usa o número de colunas escolhido
-        // Tablet: Máximo 3 colunas (para não ficar muito pequeno)
-        // Mobile: Máximo 2 colunas (ou 1 se for muito estreito)
         layoutCss = `
   /* Desktop (Padrão escolhido) */
   #instawix-feed { 

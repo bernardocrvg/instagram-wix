@@ -25,7 +25,11 @@ export default function App() {
     alignment: 'center',
     fontFamily: 'Inter',
     fontWeight: '400',
-    customFontUrl: ''
+    customFontUrl: '',
+    // Novas configurações de cor
+    captionColor: '#ffffff',
+    overlayColor: '#000000',
+    overlayOpacity: 50
   });
   
   const [isCodeOpen, setIsCodeOpen] = useState(false);

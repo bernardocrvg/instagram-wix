@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search, BookOpen, AlignLeft, AlignCenter, AlignRight, Type } from 'lucide-react';
+import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search, BookOpen, AlignLeft, AlignCenter, AlignRight, Type, Palette } from 'lucide-react';
 
 const GOOGLE_FONTS = [
   "Inter", "Montserrat", "Roboto", "Open Sans", "Lato", "Poppins", 
@@ -123,6 +123,54 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                     {config.feedType === 'paginated' && <p>Mostra todos os posts com a hashtag escolhida, divididos em várias páginas.</p>}
                 </div>
             </Tabs>
+        </div>
+
+        {/* Cores e Efeitos */}
+        <div className="space-y-6">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <Palette className="w-4 h-4" /> Cores e Efeitos
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label>Cor da Legenda</Label>
+                    <div className="flex gap-2 items-center">
+                        <Input 
+                            type="color" 
+                            value={config.captionColor}
+                            onChange={(e) => setConfig({...config, captionColor: e.target.value})}
+                            className="w-10 h-10 p-1 cursor-pointer"
+                        />
+                        <span className="text-xs text-muted-foreground font-mono">{config.captionColor}</span>
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label>Cor do Fundo (Hover)</Label>
+                    <div className="flex gap-2 items-center">
+                        <Input 
+                            type="color" 
+                            value={config.overlayColor}
+                            onChange={(e) => setConfig({...config, overlayColor: e.target.value})}
+                            className="w-10 h-10 p-1 cursor-pointer"
+                        />
+                        <span className="text-xs text-muted-foreground font-mono">{config.overlayColor}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="space-y-4">
+                <div className="flex justify-between">
+                    <Label>Opacidade do Fundo (%)</Label>
+                    <span className="text-sm text-muted-foreground">{config.overlayOpacity}%</span>
+                </div>
+                <Slider 
+                    value={[config.overlayOpacity]} 
+                    min={0} 
+                    max={100} 
+                    step={5} 
+                    onValueChange={(val) => setConfig({...config, overlayOpacity: val[0]})}
+                />
+            </div>
         </div>
 
         {/* Estilo e Layout */}
