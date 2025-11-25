@@ -135,25 +135,47 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
                 <div className="space-y-2">
                     <Label>Cor da Legenda</Label>
                     <div className="flex gap-2 items-center">
+                        <div className="relative w-10 h-10 shrink-0">
+                            <Input 
+                                type="color" 
+                                value={config.captionColor}
+                                onChange={(e) => setConfig({...config, captionColor: e.target.value})}
+                                className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0"
+                            />
+                            <div 
+                                className="w-full h-full rounded border shadow-sm" 
+                                style={{ backgroundColor: config.captionColor }} 
+                            />
+                        </div>
                         <Input 
-                            type="color" 
                             value={config.captionColor}
                             onChange={(e) => setConfig({...config, captionColor: e.target.value})}
-                            className="w-10 h-10 p-1 cursor-pointer"
+                            className="font-mono text-xs h-10 uppercase"
+                            maxLength={7}
                         />
-                        <span className="text-xs text-muted-foreground font-mono">{config.captionColor}</span>
                     </div>
                 </div>
                 <div className="space-y-2">
                     <Label>Cor do Fundo (Hover)</Label>
                     <div className="flex gap-2 items-center">
+                        <div className="relative w-10 h-10 shrink-0">
+                            <Input 
+                                type="color" 
+                                value={config.overlayColor}
+                                onChange={(e) => setConfig({...config, overlayColor: e.target.value})}
+                                className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0"
+                            />
+                            <div 
+                                className="w-full h-full rounded border shadow-sm" 
+                                style={{ backgroundColor: config.overlayColor }} 
+                            />
+                        </div>
                         <Input 
-                            type="color" 
                             value={config.overlayColor}
                             onChange={(e) => setConfig({...config, overlayColor: e.target.value})}
-                            className="w-10 h-10 p-1 cursor-pointer"
+                            className="font-mono text-xs h-10 uppercase"
+                            maxLength={7}
                         />
-                        <span className="text-xs text-muted-foreground font-mono">{config.overlayColor}</span>
                     </div>
                 </div>
             </div>
