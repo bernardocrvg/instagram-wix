@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -7,15 +7,17 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search, BookOpen, AlignLeft, AlignCenter, AlignRight, Type, Palette } from 'lucide-react';
+import { RefreshCw, Settings2, LayoutGrid, StretchHorizontal, Search, BookOpen, AlignLeft, AlignCenter, AlignRight, Type, Palette, Download } from 'lucide-react';
 
 const GOOGLE_FONTS = [
   "Inter", "Montserrat", "Roboto", "Open Sans", "Lato", "Poppins", 
-  "Playfair Display", "Merriweather", "Nunito", "Raleway", "Oswald"
+  "Playfair Display", "Merriweather", "Nunito", "Raleway", "Oswald",
+  "Wix Madefor Display"
 ];
 
 export default function FeedConfigurator({ config, setConfig, onGenerate, isLoading }) {
-  
+  const [tempFontUrl, setTempFontUrl] = useState(config.customFontUrl);
+
   const handleTypeChange = (value) => {
     if (value === 'fixed') {
       setConfig({ ...config, feedType: 'fixed', columns: 5, rows: 1 });
@@ -30,6 +32,10 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
     if (e.key === 'Enter') {
       onGenerate();
     }
+  };
+
+  const handleLoadFont = () => {
+    setConfig({ ...config, customFontUrl: tempFontUrl });
   };
 
   return (
@@ -271,12 +277,17 @@ export default function FeedConfigurator({ config, setConfig, onGenerate, isLoad
             </div>
             
             {config.fontFamily === 'custom' && (
-                <Input 
-                    placeholder="URL da fonte (ex: .woff2) ou Nome" 
-                    value={config.customFontUrl}
-                    onChange={(e) => setConfig({...config, customFontUrl: e.target.value})}
-                    className="text-xs"
-                />
+                <div className="flex gap-2">
+                    <Input 
+                        placeholder="URL da fonte (ex: .woff2) ou Nome" 
+                        value={tempFontUrl}
+                        onChange={(e) => setTempFontUrl(e.target.value)}
+                        className="text-xs flex-1"
+                    />
+                    <Button size="sm" variant="secondary" onClick={handleLoadFont}>
+                        <Download className="w-4 h-4" />
+                    </Button>
+                </div>
             )}
           </div>
 
