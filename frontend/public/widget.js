@@ -72,7 +72,6 @@
         
         link.appendChild(img);
 
-        // Adiciona a Legenda (Overlay)
         if (post.caption) {
             const overlay = document.createElement('div');
             overlay.className = 'instawix-overlay';
@@ -91,38 +90,28 @@
       if (config.type === 'paginated' && totalPages > 1) {
         const nav = document.createElement('div');
         nav.className = 'instawix-nav';
-        nav.style.cssText = 'display:flex; justify-content:center; gap:10px; margin-top:20px; width:100%; grid-column: 1 / -1;';
         
-        const prevBtn = createBtn('< Anterior', page > 1, () => renderPage(page - 1));
-        const nextBtn = createBtn('Próximo >', page < totalPages, () => renderPage(page + 1));
+        const prevBtn = document.createElement('button');
+        prevBtn.innerText = '< Anterior';
+        prevBtn.className = 'instawix-btn instawix-prev';
+        prevBtn.disabled = page === 1;
+        prevBtn.onclick = () => renderPage(page - 1);
+
+        const nextBtn = document.createElement('button');
+        nextBtn.innerText = 'Próximo >';
+        nextBtn.className = 'instawix-btn instawix-next';
+        nextBtn.disabled = page === totalPages;
+        nextBtn.onclick = () => renderPage(page + 1);
         
         const info = document.createElement('span');
+        info.className = 'instawix-info';
         info.innerText = `Página ${page} de ${totalPages}`;
-        info.style.cssText = 'font-family:sans-serif; font-size:14px; color:#666; align-self:center;';
 
         nav.appendChild(prevBtn);
         nav.appendChild(info);
         nav.appendChild(nextBtn);
         container.appendChild(nav);
       }
-    }
-
-    function createBtn(text, enabled, onClick) {
-      const btn = document.createElement('button');
-      btn.innerText = text;
-      btn.disabled = !enabled;
-      btn.onclick = onClick;
-      btn.style.cssText = `
-        padding: 8px 16px;
-        border: 1px solid #ddd;
-        background: ${enabled ? '#fff' : '#f5f5f5'};
-        color: ${enabled ? '#333' : '#aaa'};
-        cursor: ${enabled ? 'pointer' : 'default'};
-        border-radius: 4px;
-        font-family: sans-serif;
-        font-size: 14px;
-      `;
-      return btn;
     }
 
     renderPage(1);
